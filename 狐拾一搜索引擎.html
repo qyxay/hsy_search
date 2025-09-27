@@ -20,6 +20,10 @@
                             5: '#9C27B0'
                         },
                         category: '#8B5CF6',
+                        match: {
+                            name: '#FF9F1C',    
+                            content: '#3A86FF'  
+                        },
                         neutral: {
                             50: '#F9FAFB',
                             100: '#F3F4F6',
@@ -65,7 +69,26 @@
                 @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium text-white;
             }
             .category-badge {
-                @apply inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-category/10 text-category;
+                @apply
+                    inline-flex items-center
+                    px-1.5 py-0.5  /* 使用内容匹配的内边距 */
+                    rounded  /* 使用内容匹配的圆角样式 */
+                    text-sm font-medium  /* 使用内容匹配的文字大小 */
+                    bg-category/10 text-category;  /* 保持紫色系 */
+            }
+            
+            .match-badge {
+                @apply
+                    inline-flex items-center
+                    px-1.5 py-0.5
+                    rounded
+                    text-sm font-medium;
+            }
+            .match-name {
+                @apply bg-match-name/10 text-match-name;
+            }
+            .match-content {
+                @apply bg-match-content/10 text-match-content;
             }
             .level-indent-1 { @apply pl-5; }
             .level-indent-2 { @apply pl-10; }
@@ -90,9 +113,12 @@
             .content-text {
                 @apply text-neutral-600 text-sm leading-relaxed;
             }
-            .title-text {
-                @apply text-neutral-800 font-medium;
-            }
+            /* 层级字体样式 - 三级内容加粗 */
+            .level-text-1 { @apply text-lg font-semibold text-neutral-800; }
+            .level-text-2 { @apply text-base font-medium text-neutral-800; }
+            .level-text-3 { @apply text-base font-semibold text-neutral-700; } /* 三级内容加粗 */
+            .level-text-4 { @apply text-sm font-normal text-neutral-700; }
+            .level-text-5 { @apply text-sm font-light text-neutral-600; }
             .match-highlight {
                 @apply bg-yellow-100 text-neutral-800 px-0.5 rounded;
             }
@@ -109,12 +135,12 @@
         <div class="mb-5 md:mb-7 p-3 md:p-4 bg-white rounded-lg shadow-sm border border-neutral-100 text-sm">
             <p class="font-medium text-neutral-700 mb-2">层级标识说明：</p>
             <div class="flex flex-wrap gap-2">
-                <span class="flex items-center gap-1.5"><span class="level-badge bg-level-1">1层</span> 大标签</span>
+                <span class="flex items-center gap-1.5"><span class="level-badge bg-level-1">1层</span> 大分类</span>
                 <span class="flex items-center gap-1.5"><span class="level-badge bg-level-2">2层</span> 1层子项</span>
-                <span class="flex items-center gap-1.5"><span class="level-badge bg-level-3">3层</span> 2层子项</span>
+                <span class="flex items-center gap-1.5"><span class="level-badge bg-level-3">3层</span> 2层子项（加粗显示）</span>
                 <span class="flex items-center gap-1.5"><span class="level-badge bg-level-4">4层</span> 3层子项</span>
                 <span class="flex items-center gap-1.5"><span class="level-badge bg-level-5">5层</span> 4层子项</span>
-                <span class="text-neutral-500"><i class="fa fa-lightbulb-o mr-1"></i>点击任意区域展开/折叠卡片</span>
+                <span class="text-neutral-500"><i class="fa fa-lightbulb-o mr-1"></i>点击任意区域展开/折叠卡片内容</span>
             </div>
         </div>
         
@@ -147,10 +173,10 @@
                     找到 <span id="resultCount" class="text-primary font-semibold">0</span> 条相关结果
                 </h2>
                 <div class="flex items-center gap-3">
-                    <span id="matchTip" class="text-xs text-neutral-500 hidden">
+                    <span id="resultTip" class="text-sm text-neutral-500">点击任意区域展开/折叠内容</span>  <!-- 从text-xs改为text-sm -->
+                    <span id="matchTip" class="text-sm text-neutral-500 hidden">  <!-- 从text-xs改为text-sm -->
                         <i class="fa fa-star text-yellow-400 mr-1"></i>匹配度从高到低排序
                     </span>
-                    <span id="resultTip" class="text-xs text-neutral-500">点击任意区域展开/折叠卡片</span>
                 </div>
             </div>
             <div id="resultsList" class="space-y-3 md:space-y-4">
@@ -181,7 +207,7 @@
             excludedPath: ['person'],
             maxDisplayLevel: 5,
             fetchTimeout: 10000,
-            maxResultAnimationDelay: 100, // 降低结果显示延迟
+            maxResultAnimationDelay: 500,
             contentMaxLength: 150,
         };
 
@@ -248,14 +274,15 @@
         }
 
         /**
-         * 工具函数：格式化内容
+         * 工具函数：格式化内容（删除对象/数组结构提示）
          */
         function formatContent(value, query) {
             try {
                 if (value === null) return '<span class="text-neutral-400">null</span>';
                 if (value === undefined) return '<span class="text-neutral-400">undefined</span>';
+                
+                // 非对象类型：直接显示并高亮
                 if (typeof value !== 'object') {
-                    // 非对象类型：直接显示并高亮
                     const text = String(value);
                     const highlighted = highlightMatch(text, query);
                     // 超长文本截断
@@ -264,13 +291,8 @@
                         : highlighted;
                 }
 
-                // 对象/数组类型：显示结构信息
-                if (Array.isArray(value)) {
-                    return `<span class="text-neutral-500">数组 (${value.length} 个元素)</span>`;
-                } else {
-                    const keys = Object.keys(value);
-                    return `<span class="text-neutral-500">对象 (${keys.length} 个属性)</span>`;
-                }
+                // 对于对象和数组，不显示结构提示，仅在可展开时显示提示
+                return '<span class="text-neutral-500 text-xs">点击展开查看内容</span>';
             } catch (err) {
                 console.error('内容格式化错误:', err);
                 return '<span class="text-red-500">内容加载失败</span>';
@@ -356,7 +378,7 @@
             const iconEl = cardEl.querySelector('.level-icon');
             if (!contentEl || !iconEl) return;
 
-            // 切换内容显示（移除延迟）
+            // 切换内容显示
             contentEl.classList.toggle('show');
 
             // 切换图标动画
@@ -370,7 +392,7 @@
         }
 
         /**
-         * 递归搜索数据（从第2层开始匹配，记录1级分类）
+         * 递归搜索数据
          */
         function searchData(obj, query, results, path, level, parentCategory) {
             // 终止条件：层级超限或路径排除
@@ -459,7 +481,7 @@
         }
 
         /**
-         * 生成子层级HTML
+         * 生成子层级HTML（三级内容加粗）
          */
         function generateChildLevels(data, parentLevel, query) {
             const currentLevel = parentLevel + 1;
@@ -481,15 +503,17 @@
                 data.forEach((item, index) => {
                     const itemName = `[${index}]`;
                     const isItemExpandable = isExpandable(item);
+                    // 应用层级样式（三级加粗）
+                    const textClass = `level-text-${currentLevel}`;
                     
                     html += `
                         <div class="mb-2 last:mb-0">
-                            <div class="flex items-center gap-2 ${getLevelIndentClass(1)} font-medium text-neutral-700 text-sm">
+                            <div class="flex items-center gap-2 ${getLevelIndentClass(1)} ${textClass}">
                                 ${highlightMatch(itemName, query)}
-                                ${isItemExpandable ? '<i class="fa fa-angle-right text-neutral-400 text-xs"></i>' : ''}
+                                ${isItemExpandable ? '<i class="fa fa-chevron-right text-neutral-400 text-xs"></i>' : ''}
                             </div>
                             ${isItemExpandable 
-                                ? generateChildLevels(item, currentLevel, query) 
+                                ? `<div class="expandable-content">${generateChildLevels(item, currentLevel, query)}</div>` 
                                 : `<div class="${getLevelIndentClass(2)} content-text mt-1">${highlightMatch(String(item), query)}</div>`
                             }
                         </div>
@@ -502,15 +526,17 @@
                 keys.forEach(key => {
                     const item = data[key];
                     const isItemExpandable = isExpandable(item);
+                    // 应用层级样式（三级加粗）
+                    const textClass = `level-text-${currentLevel}`;
                     
                     html += `
                         <div class="mb-2 last:mb-0">
-                            <div class="flex items-center gap-2 ${getLevelIndentClass(1)} font-medium text-neutral-700 text-sm">
+                            <div class="flex items-center gap-2 ${getLevelIndentClass(1)} ${textClass}" onclick="toggleNestedExpand(event, this)">
                                 ${highlightMatch(key, query)}
-                                ${isItemExpandable ? '<i class="fa fa-angle-right text-neutral-400 text-xs"></i>' : ''}
+                                ${isItemExpandable ? '<i class="fa fa-chevron-right text-neutral-400 text-xs transition-transform duration-200"></i>' : ''}
                             </div>
                             ${isItemExpandable 
-                                ? generateChildLevels(item, currentLevel, query) 
+                                ? `<div class="expandable-content">${generateChildLevels(item, currentLevel, query)}</div>` 
                                 : `<div class="${getLevelIndentClass(2)} content-text mt-1">${highlightMatch(String(item), query)}</div>`
                             }
                         </div>
@@ -520,6 +546,29 @@
             
             html += '</div>';
             return html;
+        }
+
+        /**
+         * 切换嵌套内容的展开/折叠状态
+         */
+        function toggleNestedExpand(event, el) {
+            // 阻止事件冒泡到父级元素，避免触发二级内容的收起
+            event.stopPropagation();
+            
+            const contentEl = el.nextElementSibling;
+            const iconEl = el.querySelector('i.fa-chevron-right, i.fa-chevron-down');
+            
+            if (contentEl && contentEl.classList.contains('expandable-content') && iconEl) {
+                contentEl.classList.toggle('show');
+                
+                if (contentEl.classList.contains('show')) {
+                    iconEl.classList.replace('fa-chevron-right', 'fa-chevron-down');
+                    iconEl.classList.add('text-primary');
+                } else {
+                    iconEl.classList.replace('fa-chevron-down', 'fa-chevron-right');
+                    iconEl.classList.remove('text-primary');
+                }
+            }
         }
 
         /**
@@ -553,11 +602,13 @@
                 DOM.resultCount.textContent = results.length;
                 DOM.matchTip.classList.remove('hidden');
 
-                // 生成结果卡片
+                // 生成结果卡片 - 所有内容默认不展开
                 results.forEach((item, index) => {
                     const isExpandableCard = isExpandable(item.fullData) && item.level < CONFIG.maxDisplayLevel;
+                    // 应用层级样式（三级加粗）
+                    const titleClass = `level-text-${item.level}`;
                     
-                    // 计算动画延迟（降低延迟）
+                    // 计算动画延迟
                     const delayRatio = Math.min(index / results.length, 1);
                     const animationDelay = Math.floor(delayRatio * CONFIG.maxResultAnimationDelay);
 
@@ -565,19 +616,19 @@
                     card.className = 'result-card fade-in';
                     card.style.animationDelay = `${animationDelay}ms`;
 
-                    // 卡片HTML，添加1级分类标签
+                    // 卡片HTML - 内容默认不展开
                     card.innerHTML = `
                         <!-- 卡片标题 -->
                         <div class="card-header">
                             <div class="card-title">
                                 <span class="level-badge bg-level-${item.level}">${item.level}层</span>
-                                <span class="title-text text-base">${item.highlightedName}</span>
+                                <span class="${titleClass}">${item.highlightedName}</span>
                                 ${item.parentCategory ? 
                                     `<span class="category-badge">${item.highlightedParentCategory}</span>` : ''
                                 }
                                 ${item.matchType === 'name' ? 
-                                    '<span class="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded ml-2">标题匹配</span>' : 
-                                    '<span class="text-xs bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded ml-2">内容匹配</span>'
+                                    '<span class="match-badge match-name">标题匹配</span>' : 
+                                    '<span class="match-badge match-content">内容匹配</span>'
                                 }
                             </div>
                             ${isExpandableCard ? 
@@ -587,14 +638,14 @@
                         </div>
                         
                         <!-- 路径信息（高亮关键词） -->
-                        <div class="text-xs text-neutral-500 mt-2 mb-3 line-clamp-1">
+                        <div class="text-sm text-neutral-500 mt-2 mb-3 line-clamp-1">
                             ${item.highlightedPath}
                         </div>
                         
-                        <!-- 内容预览 -->
+                        <!-- 内容预览（已删除对象/数组提示） -->
                         <div class="content-text mb-2">${item.content}</div>
                         
-                        <!-- 可展开子层级 -->
+                        <!-- 可展开子层级 - 默认不展开 -->
                         ${isExpandableCard ? `
                             <div class="expandable-content">
                                 ${generateChildLevels(item.fullData, item.level, query)}
@@ -664,14 +715,14 @@
                 const results = [];
                 searchData(STATE.data, query, results, [], 0, null);
 
-                // 降低搜索结果显示延迟
+                // 显示搜索结果
                 setTimeout(() => {
                     showResults(results, query);
                     // 恢复状态
                     STATE.isSearching = false;
                     DOM.searchBtn.innerHTML = '<i class="fa fa-search"></i><span>搜索</span>';
                     DOM.searchBtn.classList.remove('searching');
-                }, 150); // 降低延迟时间
+                }, 150);
 
             } catch (err) {
                 console.error('搜索执行错误:', err);
@@ -743,4 +794,3 @@
     </script>
 </body>
 </html>
-
