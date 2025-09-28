@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>JSON 展示</title>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css" rel="stylesheet">
+</head>
+<body>
+  <pre><code class="language-json" id="json-display"></code></pre>
+
+  <script>
+    // 替换为你的 JSON 文件 Raw 链接
+    const jsonUrl = "https://raw.githubusercontent.com/你的用户名/你的仓库名/main/data.json";
+
+    fetch(jsonUrl)
+      .then(response => response.json())
+      .then(data => {
+        // 格式化 JSON 并高亮显示
+        document.getElementById("json-display").textContent = JSON.stringify(data, null, 2);
+        Prism.highlightAll();
+      })
+      .catch(error => console.error("加载 JSON 失败:", error));
+  </script>
+</body>
+</html>
