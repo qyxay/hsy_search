@@ -1,0 +1,770 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>狐拾一搜索引擎</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = { theme: { extend: {
+            colors: {
+                primary: '#1E40AF',
+                secondary: '#64748B',
+                accent: '#F59E0B',
+                success: '#10B981',
+                zhihu: {
+                    blue: '#0F88EB',
+                    red: '#F43530',
+                    gray: '#8C8C8C',
+                    light: '#F7F8FA'
+                }
+            },
+            fontFamily: {
+                sans: ['Inter', 'system-ui', 'sans-serif']
+            },
+            boxShadow: {
+                'result': '0 1px 2px rgba(0,0,0,0.1)',
+                'zhihu-card': '0 1px 4px rgba(0,0,0,0.08)',
+                'zhihu-hover': '0 2px 8px rgba(0,0,0,0.12)'
+            }
+        }}}
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .search-engine-bg { @apply bg-gradient-to-b from-white to-gray-50 min-h-screen; }
+            .zhihu-bg { @apply bg-zhihu-light min-h-screen; }
+            .result-item { @apply bg-white border border-gray-100 rounded-lg p-4 hover:shadow-md transition-all duration-200 cursor-pointer; }
+            .zhihu-card { @apply bg-white rounded-lg shadow-zhihu-card hover:shadow-zhihu-hover transition-all duration-300; }
+            .fade-in { animation: fadeIn 0.3s ease-out; }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+            .slide-in { animation: slideIn 0.4s ease-out; }
+            @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+            .highlight { @apply bg-yellow-100 text-black px-1 rounded; }
+            .zhihu-author { @apply flex items-center gap-2 mb-3; }
+            .zhihu-content { @apply text-gray-800 leading-relaxed; }
+            .zhihu-footer { @apply flex items-center justify-between mt-4 pt-3 border-t border-gray-100; }
+            .zhihu-action { @apply flex items-center gap-1 text-zhihu-gray hover:text-zhihu-red transition-colors duration-200; }
+            .data-detail { @apply bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100; }
+            .data-key { @apply font-bold text-lg text-gray-800 mr-2; }
+            .data-value-same { @apply text-gray-700; }
+            .data-value-newline { @apply text-gray-700 ml-4 block mt-1; }
+            .source-tag { @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium; }
+            .success-message { @apply bg-green-50 text-success border border-green-200; }
+        }
+    </style>
+</head>
+<body id="appBody" class="search-engine-bg font-sans">
+    <!-- 搜索页面布局 -->
+    <div id="searchLayout" class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- 搜索引擎标题 -->
+        <div class="text-center mb-8">
+            <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold text-primary mb-2">狐拾一搜索</h1>
+            <p class="text-secondary text-sm">智能数据检索引擎</p>
+        </div>
+
+        <!-- 搜索框 -->
+        <div class="mb-8 max-w-2xl mx-auto">
+            <div class="relative">
+                <input type="text" id="searchInput" placeholder="输入关键词搜索..." 
+                       class="w-full px-5 py-3 rounded-full border border-gray-200 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-lg">
+                <button id="searchBtn" class="absolute right-2 top-1/2 -translate-y-1/2 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary/90 transition-all">
+                    <i class="fa fa-search mr-2"></i>搜索
+                </button>
+                <button id="clearBtn" class="absolute right-24 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden">
+                    <i class="fa fa-times-circle text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 搜索状态 -->
+        <div id="searchStatus" class="mb-6 text-center p-4 bg-blue-50 text-blue-700 rounded-lg hidden">
+            <i class="fa fa-spinner fa-spin mr-2"></i><span id="statusText">正在搜索...</span>
+        </div>
+
+        <!-- 成功提示 -->
+        <div id="successMessage" class="mb-6 text-center p-4 success-message rounded-lg hidden">
+            <i class="fa fa-check-circle mr-2"></i><span id="successText"></span>
+        </div>
+
+        <!-- 搜索结果统计 -->
+        <div id="resultStats" class="mb-6 text-sm text-gray-500 hidden">
+            找到 <span id="resultCount" class="text-primary font-semibold">0</span> 条结果，用时 <span id="searchTime" class="font-semibold">0</span> 秒
+        </div>
+
+        <!-- 搜索结果列表 -->
+        <div id="searchResults" class="space-y-3 hidden">
+            <!-- 结果项将通过JavaScript动态生成 -->
+        </div>
+
+        <!-- 无结果提示 -->
+        <div id="noResult" class="text-center py-12 bg-white rounded-lg border border-gray-100 hidden">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 text-gray-400 mb-4">
+                <i class="fa fa-search text-2xl"></i>
+            </div>
+            <p class="text-gray-600 text-lg mb-2">未找到相关结果</p>
+            <p class="text-gray-400 text-sm">建议：1. 简化关键词 2. 尝试同义词 3. 扩大搜索范围</p>
+        </div>
+
+        <!-- 错误提示 -->
+        <div id="errorMessage" class="mb-6 p-4 bg-red-50 text-red-600 rounded-lg hidden">
+            <i class="fa fa-exclamation-circle mr-2"></i><span id="errorText"></span>
+        </div>
+    </div>
+
+    <!-- 知乎格式详情页面 -->
+    <div id="zhihuLayout" class="hidden max-w-3xl mx-auto px-4 py-8">
+        <!-- 返回按钮 -->
+        <button id="backBtn" class="mb-6 flex items-center text-zhihu-blue hover:text-zhihu-blue/80 transition-colors">
+            <i class="fa fa-arrow-left mr-2"></i>返回搜索结果
+        </button>
+
+        <!-- 详情内容 -->
+        <div id="detailContent" class="zhihu-card p-6">
+            <!-- 内容将通过JavaScript动态生成 -->
+        </div>
+
+        <!-- 相关推荐 -->
+        <div id="relatedContent" class="mt-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">相关推荐</h3>
+            <div id="relatedList" class="space-y-3">
+                <!-- 相关内容将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            dataUrl: 'https://qyxay.github.io/hsy_search/%E8%B5%84%E6%96%99%E5%BA%93.json',
+            excludedPath: ['person'],
+            maxDisplayLevel: 5,
+            fetchTimeout: 10000,
+            searchResultMaxLength: 70, // 搜索结果内容最大长度
+            // 预定义颜色方案，支持更多标签类型
+            tagColors: [
+                'bg-blue-100 text-blue-800',
+                'bg-green-100 text-green-800',
+                'bg-purple-100 text-purple-800',
+                'bg-yellow-100 text-yellow-800',
+                'bg-red-100 text-red-800',
+                'bg-indigo-100 text-indigo-800',
+                'bg-pink-100 text-pink-800',
+                'bg-teal-100 text-teal-800',
+                'bg-orange-100 text-orange-800',
+                'bg-gray-100 text-gray-800'
+            ],
+            // 排除标注的特定路径模式
+            excludeHighlightPaths: [
+                ['神域那些事', '尘夔惊天一战'] // 不标注这个路径下的关键词
+            ]
+        };
+
+        const STATE = {
+            data: null,
+            isSearching: false,
+            lastQuery: '',
+            searchResults: [],
+            currentView: 'search', // 'search' 或 'zhihu'
+            currentItem: null,
+            rootTags: new Map() // 存储第一层标签及其颜色
+        };
+
+        const DOM = {
+            appBody: document.getElementById('appBody'),
+            searchLayout: document.getElementById('searchLayout'),
+            zhihuLayout: document.getElementById('zhihuLayout'),
+            searchInput: document.getElementById('searchInput'),
+            searchBtn: document.getElementById('searchBtn'),
+            clearBtn: document.getElementById('clearBtn'),
+            searchStatus: document.getElementById('searchStatus'),
+            statusText: document.getElementById('statusText'),
+            successMessage: document.getElementById('successMessage'),
+            successText: document.getElementById('successText'),
+            resultStats: document.getElementById('resultStats'),
+            resultCount: document.getElementById('resultCount'),
+            searchTime: document.getElementById('searchTime'),
+            searchResults: document.getElementById('searchResults'),
+            noResult: document.getElementById('noResult'),
+            errorMessage: document.getElementById('errorMessage'),
+            errorText: document.getElementById('errorText'),
+            backBtn: document.getElementById('backBtn'),
+            detailContent: document.getElementById('detailContent'),
+            relatedContent: document.getElementById('relatedContent'),
+            relatedList: document.getElementById('relatedList')
+        };
+
+        // 工具函数
+        function showError(message, duration = 5000) {
+            DOM.errorText.textContent = message;
+            DOM.errorMessage.classList.remove('hidden');
+            setTimeout(() => DOM.errorMessage.classList.add('hidden'), duration);
+        }
+
+        function showSuccess(message, duration = 3000) {
+            DOM.successText.textContent = message;
+            DOM.successMessage.classList.remove('hidden');
+            setTimeout(() => DOM.successMessage.classList.add('hidden'), duration);
+        }
+
+        function hideAllMessages() {
+            DOM.searchStatus.classList.add('hidden');
+            DOM.successMessage.classList.add('hidden');
+            DOM.noResult.classList.add('hidden');
+            DOM.errorMessage.classList.add('hidden');
+            DOM.resultStats.classList.add('hidden');
+            DOM.searchResults.classList.add('hidden');
+        }
+
+        function escapeRegExp(str) {
+            return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        // 判断是否需要排除高亮
+        function shouldExcludeHighlight(pathParts) {
+            if (!pathParts || pathParts.length === 0) return false;
+            
+            // 检查是否匹配任何排除路径模式
+            return CONFIG.excludeHighlightPaths.some(excludePath => {
+                if (excludePath.length > pathParts.length) return false;
+                
+                // 检查路径前缀是否匹配
+                for (let i = 0; i < excludePath.length; i++) {
+                    if (pathParts[i] !== excludePath[i]) return false;
+                }
+                return true;
+            });
+        }
+
+        // 高亮匹配的关键词，支持排除特定路径
+        function highlightMatch(text, query, pathParts = null) {
+            if (!query || typeof text !== 'string') return text;
+            
+            // 如果是特定路径，不进行高亮
+            if (pathParts && shouldExcludeHighlight(pathParts)) {
+                return text;
+            }
+            
+            const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        // 初始化第一层标签（根视为0层）
+        function initRootTags(data) {
+            if (!data || typeof data !== 'object' || data === null) return;
+            
+            const rootKeys = Object.keys(data);
+            rootKeys.forEach((key, index) => {
+                // 为每个第一层标签分配颜色，循环使用预定义颜色方案
+                const colorIndex = index % CONFIG.tagColors.length;
+                STATE.rootTags.set(key, CONFIG.tagColors[colorIndex]);
+            });
+            
+            console.log('第一层标签初始化完成:', Array.from(STATE.rootTags.entries()));
+        }
+
+        // 获取第一层标签（根视为0层）
+        function getRootTag(path) {
+            if (!path || path.length === 0) return '';
+            
+            const firstPart = path[0];
+            if (STATE.rootTags.has(firstPart)) {
+                const bgColor = STATE.rootTags.get(firstPart);
+                return `<span class="source-tag ${bgColor} mr-2">${firstPart}</span>`;
+            }
+            
+            return '';
+        }
+
+        // 格式化搜索结果内容，截取前70个字符
+        function formatSearchResultContent(obj, query, pathParts) {
+            try {
+                if (obj === null || obj === undefined) return '';
+                
+                // 对于对象类型，生成更友好的字符串表示
+                if (typeof obj === 'object') {
+                    let contentParts = [];
+                    
+                    if (Array.isArray(obj)) {
+                        // 数组类型
+                        contentParts.push('[');
+                        for (let i = 0; i < Math.min(obj.length, 3); i++) {
+                            const item = obj[i];
+                            if (typeof item === 'string') {
+                                contentParts.push(`"${item.length > 10 ? item.substring(0, 10) + '...' : item}"`);
+                            } else if (typeof item === 'object' && item !== null) {
+                                contentParts.push('{...}');
+                            } else {
+                                contentParts.push(String(item));
+                            }
+                        }
+                        if (obj.length > 3) contentParts.push('...');
+                        contentParts.push(']');
+                        return contentParts.join(', ');
+                    } else {
+                        // 对象类型，按照用户示例格式显示
+                        const keys = Object.keys(obj);
+                        for (const key of keys) {
+                            const value = obj[key];
+                            let valueStr = '';
+                            
+                            if (typeof value === 'string') {
+                                valueStr = value;
+                            } else if (typeof value === 'object' && value !== null) {
+                                valueStr = JSON.stringify(value);
+                            } else {
+                                valueStr = String(value);
+                            }
+                            
+                            contentParts.push(`${key}: ${valueStr}`);
+                        }
+                        
+                        // 合并所有部分并截取前70个字符
+                        let fullContent = contentParts.join('  ');
+                        if (fullContent.length > CONFIG.searchResultMaxLength) {
+                            fullContent = fullContent.substring(0, CONFIG.searchResultMaxLength) + '...';
+                        }
+                        
+                        // 高亮匹配的关键词，传入路径信息用于排除判断
+                        return highlightMatch(fullContent, query, pathParts);
+                    }
+                } else {
+                    // 基本类型
+                    const text = String(obj);
+                    const highlighted = highlightMatch(text, query, pathParts);
+                    return text.length > CONFIG.searchResultMaxLength
+                        ? `${highlighted.substring(0, CONFIG.searchResultMaxLength)}...`
+                        : highlighted;
+                }
+            } catch (err) {
+                console.error('格式化搜索结果失败:', err);
+                return '';
+            }
+        }
+
+        function isExcludedPath(path) {
+            if (path.length < CONFIG.excludedPath.length) return false;
+            for (let i = 0; i < CONFIG.excludedPath.length; i++)
+                if (path[i] !== CONFIG.excludedPath[i]) return false;
+            return true;
+        }
+
+        // 递归渲染数据为通俗格式
+        function renderDataAsHumanReadable(data, query, currentPath = []) {
+            if (data === null || data === undefined) return '<span class="text-gray-400">null</span>';
+            
+            if (typeof data !== 'object') {
+                const text = String(data);
+                const highlighted = highlightMatch(text, query, currentPath);
+                return `<span class="text-gray-700">${highlighted}</span>`;
+            }
+
+            if (Array.isArray(data)) {
+                if (data.length === 0) return '<span class="text-gray-400">[]</span>';
+                
+                let html = '<div class="space-y-2">';
+                data.forEach((item, index) => {
+                    const newPath = [...currentPath, `[${index}]`];
+                    html += `
+                        <div class="flex items-start">
+                            <span class="text-gray-500 mr-2">[${index}]</span>
+                            <div class="flex-1">${renderDataAsHumanReadable(item, query, newPath)}</div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                return html;
+            }
+
+            // 对象类型
+            const keys = Object.keys(data);
+            if (keys.length === 0) return '<span class="text-gray-400">{}</span>';
+            
+            let html = '<div class="space-y-3">';
+            keys.forEach(key => {
+                const value = data[key];
+                const newPath = [...currentPath, key];
+                const highlightedKey = highlightMatch(key, query, newPath);
+                
+                if (typeof value === 'string' && value.length <= 15) {
+                    // 内容小于等于15个字符，同一行显示
+                    const highlightedValue = highlightMatch(value, query, newPath);
+                    html += `
+                        <div class="flex items-center">
+                            <span class="data-key">${highlightedKey}：</span>
+                            <span class="data-value-same">${highlightedValue}</span>
+                        </div>
+                    `;
+                } else {
+                    // 内容大于15个字符或非字符串类型，另起一行并缩进
+                    html += `
+                        <div>
+                            <span class="data-key">${highlightedKey}：</span>
+                            <div class="data-value-newline">${renderDataAsHumanReadable(value, query, newPath)}</div>
+                        </div>
+                    `;
+                }
+            });
+            html += '</div>';
+            return html;
+        }
+
+        // 数据加载和搜索
+        async function loadData() {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => {
+                    controller.abort();
+                    throw new Error('数据加载超时');
+                }, CONFIG.fetchTimeout);
+
+                const response = await fetch(CONFIG.dataUrl, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) throw new Error(`服务器响应错误 (${response.status})`);
+                STATE.data = await response.json();
+
+                // 初始化第一层标签（根视为0层）
+                initRootTags(STATE.data);
+                
+                console.log('数据源加载完成');
+                // 显示成功提示（对勾+绿色）
+                showSuccess('数据源加载成功，可以开始搜索');
+            } catch (err) {
+                console.error('数据加载失败:', err);
+                showError(`数据加载失败：${err.message}`);
+            }
+        }
+
+        function searchData(obj, query, results, path, level) {
+            if (level > CONFIG.maxDisplayLevel || isExcludedPath(path) || obj === null || typeof obj !== 'object') return;
+
+            try {
+                if (level > 1) {
+                    const currentName = path[path.length - 1];
+                    const nameLower = currentName.toLowerCase();
+                    const queryLower = query.toLowerCase();
+
+                    let matchScore = 0, nameMatched = false, contentMatched = false;
+
+                    if (nameLower.includes(queryLower)) {
+                        nameMatched = true;
+                        matchScore = nameLower === queryLower ? 10 : nameLower.startsWith(queryLower) ? 8 : 5;
+                    }
+
+                    if (!nameMatched && typeof obj === 'object') {
+                        const contentStr = JSON.stringify(obj).toLowerCase();
+                        if (contentStr.includes(queryLower)) {
+                            contentMatched = true;
+                            matchScore = 3;
+                        }
+                    }
+
+                    matchScore += (CONFIG.maxDisplayLevel - level + 1) * 0.5;
+
+                    if (nameMatched || contentMatched) {
+                        const fullPath = path.join(' > ');
+                        const content = formatSearchResultContent(obj, query, path);
+                        
+                        results.push({
+                            id: Date.now() + Math.random(),
+                            name: currentName,
+                            highlightedName: highlightMatch(currentName, query, path),
+                            content: content,
+                            path: fullPath,
+                            pathParts: [...path], // 保存路径数组用于获取标签和排除判断
+                            highlightedPath: path.map((p, index) => {
+                                // 为路径中的每个部分单独处理高亮，传入完整路径信息
+                                return highlightMatch(p, query, path.slice(0, index + 1));
+                            }).join(' > '),
+                            level: level,
+                            fullData: obj,
+                            matchScore: matchScore,
+                            matchType: nameMatched ? 'name' : 'content'
+                        });
+                    }
+                }
+
+                if (Array.isArray(obj)) {
+                    obj.forEach((item, index) => {
+                        const arrayItemName = `${path.length > 0 ? path[path.length - 1] : 'root'}[${index}]`;
+                        searchData(item, query, results, [...path, arrayItemName], level + 1);
+                    });
+                } else if (typeof obj === 'object' && obj !== null) {
+                    for (const key in obj) {
+                        if (obj.hasOwnProperty(key)) {
+                            searchData(obj[key], query, results, [...path, key], level + 1);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error(`搜索错误（路径：${path.join('/')}）:`, err);
+            }
+        }
+
+        // 视图切换
+        function switchToSearchView() {
+            STATE.currentView = 'search';
+            DOM.appBody.className = 'search-engine-bg';
+            DOM.searchLayout.classList.remove('hidden');
+            DOM.zhihuLayout.classList.add('hidden');
+        }
+
+        function switchToZhihuView(item, scrollToTop = true) {
+            STATE.currentView = 'zhihu';
+            STATE.currentItem = item;
+            DOM.appBody.className = 'zhihu-bg';
+            DOM.searchLayout.classList.add('hidden');
+            DOM.zhihuLayout.classList.remove('hidden');
+            renderZhihuDetail(item);
+            renderRelatedContent(item);
+            
+            // 如果需要滚动到顶部
+            if (scrollToTop) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // 渲染搜索结果
+        function renderSearchResults(results, query) {
+            DOM.searchResults.innerHTML = '';
+            
+            if (results.length === 0) {
+                DOM.noResult.classList.remove('hidden');
+                return;
+            }
+
+            results.forEach((item, index) => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item fade-in';
+                resultItem.style.animationDelay = `${index * 50}ms`;
+                
+                // 获取第一层标签（根视为0层）
+                const rootTag = getRootTag(item.pathParts);
+                
+                // 普通搜索引擎格式：标题（大字）和内容（小字）在一栏显示
+                resultItem.innerHTML = `
+                    <div class="space-y-2">
+                        <div class="flex items-start justify-between">
+                            <h3 class="text-lg font-semibold text-primary">${rootTag}${item.highlightedName}</h3>
+                            <span class="text-xs text-gray-400">${item.level}层</span>
+                        </div>
+                        <div class="text-sm text-gray-500 mb-1">${item.highlightedPath}</div>
+                        <p class="text-gray-700 text-sm leading-relaxed">${item.content}</p>
+                        <div class="flex items-center gap-4 text-xs text-gray-400">
+                            <span>${item.matchType === 'name' ? '标题匹配' : '内容匹配'}</span>
+                            <span>匹配度: ${item.matchScore.toFixed(1)}</span>
+                        </div>
+                    </div>
+                `;
+
+                resultItem.addEventListener('click', () => switchToZhihuView(item));
+                DOM.searchResults.appendChild(resultItem);
+            });
+        }
+
+        // 渲染知乎格式详情 - 重点显示数据详情，去除层级信息
+        function renderZhihuDetail(item) {
+            const humanReadableData = renderDataAsHumanReadable(item.fullData, STATE.lastQuery, item.pathParts);
+            const rootTag = getRootTag(item.pathParts);
+            
+            DOM.detailContent.innerHTML = `
+                <div class="space-y-6">
+                    <!-- 标题和第一层标签 -->
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-2xl font-bold text-gray-800">${item.highlightedName}</h2>
+                        ${rootTag}
+                    </div>
+                    
+                    <!-- 作者信息（修改为"狐拾一之异界神域"） -->
+                    <div class="zhihu-author">
+                        <div class="w-10 h-10 rounded-full bg-zhihu-blue flex items-center justify-center text-white font-semibold">
+                            ${item.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-800">狐拾一之异界神域</div>
+                            <div class="text-xs text-zhihu-gray">发布于 ${new Date().toLocaleDateString()}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 路径信息 -->
+                    <div class="text-sm text-zhihu-gray">
+                        <i class="fa fa-folder-o mr-1"></i>
+                        ${item.highlightedPath}
+                    </div>
+                    
+                    <!-- 重点突出的数据详情部分 -->
+                    <div class="data-detail">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-800 flex items-center">
+                            <i class="fa fa-database text-zhihu-blue mr-2"></i>
+                            数据详情
+                        </h3>
+                        <div class="text-sm leading-relaxed">
+                            ${humanReadableData}
+                        </div>
+                    </div>
+                    
+                    <!-- 互动区域 - 去除阅读统计 -->
+                    <div class="zhihu-footer">
+                        <div class="flex gap-6">
+                            <button class="zhihu-action">
+                                <i class="fa fa-thumbs-o-up"></i>
+                                <span>点赞</span>
+                            </button>
+                            <button class="zhihu-action">
+                                <i class="fa fa-comment-o"></i>
+                                <span>评论</span>
+                            </button>
+                            <button class="zhihu-action">
+                                <i class="fa fa-share"></i>
+                                <span>分享</span>
+                            </button>
+                        </div>
+                        <!-- 去除阅读统计 -->
+                    </div>
+                </div>
+            `;
+        }
+
+        // 渲染相关推荐 - 修改点击事件，添加滚动到顶部功能
+        function renderRelatedContent(currentItem) {
+            DOM.relatedList.innerHTML = '';
+            
+            // 从搜索结果中筛选相关内容（排除当前项）
+            const relatedItems = STATE.searchResults
+                .filter(item => item.id !== currentItem.id)
+                .slice(0, 5);
+
+            relatedItems.forEach(item => {
+                const relatedItem = document.createElement('div');
+                relatedItem.className = 'zhihu-card p-4 cursor-pointer hover:bg-gray-50 transition-colors';
+                
+                const rootTag = getRootTag(item.pathParts);
+                
+                relatedItem.innerHTML = `
+                    <div class="space-y-2">
+                        <h4 class="font-medium text-gray-800 line-clamp-2">${rootTag}${item.highlightedName}</h4>
+                        <div class="text-xs text-zhihu-gray">${item.highlightedPath}</div>
+                        <div class="flex items-center justify-between text-xs text-zhihu-gray">
+                            <span>${item.level}层 · ${item.matchType === 'name' ? '标题匹配' : '内容匹配'}</span>
+                            <span>匹配度: ${item.matchScore.toFixed(1)}</span>
+                        </div>
+                    </div>
+                `;
+
+                // 修改点击事件：切换到详情页面并滚动到顶部
+                relatedItem.addEventListener('click', () => {
+                    switchToZhihuView(item, true); // 第二个参数为true表示需要滚动到顶部
+                });
+                
+                DOM.relatedList.appendChild(relatedItem);
+            });
+        }
+
+        // 执行搜索
+        async function executeSearch(query) {
+            if (STATE.isSearching) return;
+            if (!STATE.data) {
+                showError('数据源尚未加载完成，请稍候');
+                return;
+            }
+
+            query = query.trim();
+            if (!query) {
+                hideAllMessages();
+                DOM.clearBtn.classList.add('hidden');
+                STATE.lastQuery = '';
+                return;
+            }
+
+            if (query === STATE.lastQuery) {
+                showError('已搜索过此关键词');
+                return;
+            }
+
+            try {
+                STATE.isSearching = true;
+                STATE.lastQuery = query;
+                hideAllMessages();
+                
+                // 显示搜索状态
+                DOM.searchStatus.classList.remove('hidden');
+                DOM.statusText.textContent = '正在搜索...';
+
+                const startTime = Date.now();
+                const results = [];
+                searchData(STATE.data, query, results, [], 0);
+                const searchTime = (Date.now() - startTime) / 1000;
+
+                // 排序结果
+                results.sort((a, b) => b.matchScore - a.matchScore);
+                STATE.searchResults = results;
+
+                // 更新UI
+                DOM.resultCount.textContent = results.length;
+                DOM.searchTime.textContent = searchTime.toFixed(2);
+                DOM.resultStats.classList.remove('hidden');
+                DOM.searchResults.classList.remove('hidden');
+                
+                renderSearchResults(results, query);
+
+                if (results.length === 0) {
+                    DOM.noResult.classList.remove('hidden');
+                }
+
+            } catch (err) {
+                console.error('搜索失败:', err);
+                showError(`搜索失败：${err.message}`);
+            } finally {
+                STATE.isSearching = false;
+                DOM.searchStatus.classList.add('hidden');
+                DOM.clearBtn.classList.remove('hidden');
+            }
+        }
+
+        // 事件监听
+        function initEventListeners() {
+            // 搜索按钮
+            DOM.searchBtn.addEventListener('click', () => {
+                executeSearch(DOM.searchInput.value);
+                DOM.searchInput.blur();
+            });
+
+            // 清除按钮
+            DOM.clearBtn.addEventListener('click', () => {
+                DOM.searchInput.value = '';
+                DOM.clearBtn.classList.add('hidden');
+                hideAllMessages();
+                STATE.lastQuery = '';
+            });
+
+            // 回车键搜索
+            DOM.searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    executeSearch(DOM.searchInput.value);
+                    DOM.searchInput.blur();
+                }
+            });
+
+            // 输入框变化
+            DOM.searchInput.addEventListener('input', () => {
+                DOM.clearBtn.classList.toggle('hidden', !DOM.searchInput.value.trim());
+            });
+
+            // 返回按钮 - 也添加滚动到顶部功能
+            DOM.backBtn.addEventListener('click', () => {
+                switchToSearchView();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        // 初始化
+        function init() {
+            initEventListeners();
+            loadData();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
