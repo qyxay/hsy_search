@@ -1,4 +1,153 @@
 {
-  "categories": {},
-  "lastSync": 1759241511470
+  "categories": {
+    "人物": {
+      "items": {
+        "人物": {
+          "likesCount": 0,
+          "commentsCount": 1,
+          "commentsList": [
+            {
+              "id": 1759242952570,
+              "content": "1",
+              "author": "用户",
+              "time": "2025-09-30T14:35:52.570Z"
+            }
+          ]
+        },
+        "人物 > 狐拾一 > 身份": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "人物 > 狐拾一 > 介绍": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "人物 > 马里奥 > 介绍": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "人物 > 涂月 > 介绍": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "人物 > 狐拾一": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "人物 > 马里奥": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "人物 > 马里奥 > 句摘 > 内容": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "人物 > 涂月": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "人物 > 马里奥 > 句摘": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        }
+      }
+    },
+    "建筑物": {
+      "items": {
+        "建筑物": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "建筑物 > 谷雨楼 > 来源": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "建筑物 > 谷雨楼": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        }
+      }
+    },
+    "地方": {
+      "items": {
+        "地方": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "地方 > 迷雾神域 > 统治者": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "地方 > 迷雾神域": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        }
+      }
+    },
+    "杂七杂八": {
+      "items": {
+        "杂七杂八": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "杂七杂八 > 烂话 > 介绍": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "杂七杂八 > 夔王印 > 别名": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "杂七杂八 > 夔王印 > 来源": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "杂七杂八 > 命运骰子 > 介绍": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "杂七杂八 > 命运骰子 > 来源": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "杂七杂八 > 烂话": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "杂七杂八 > 夔王印": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "杂七杂八 > 命运骰子": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        }
+      }
+    }
+  },
+  "lastSync": 1759242952570
 }
