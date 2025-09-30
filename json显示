@@ -10,7 +10,7 @@
 
   <script>
     // 替换为你的 JSON 文件 Raw 链接
-    const jsonUrl = "https://raw.githubusercontent.com/你的用户名/你的仓库名/main/data.json";
+    const jsonUrl = "https://raw.githubusercontent.com/qyxay/hsy_search/main/资料库.json";
 
     fetch(jsonUrl)
       .then(response => response.json())
