@@ -27,8 +27,15 @@
         },
         "人物 > 狐拾一 > 介绍": {
           "likesCount": 0,
-          "commentsCount": 0,
-          "commentsList": []
+          "commentsCount": 1,
+          "commentsList": [
+            {
+              "id": 1759299571078,
+              "content": "第一第一\n1",
+              "author": "用户",
+              "time": "2025-10-01T06:19:31.078Z"
+            }
+          ]
         },
         "人物 > 马里奥 > 介绍": {
           "likesCount": 0,
@@ -167,6 +174,6 @@
       }
     }
   },
-  "lastSync": 1759299552178,
+  "lastSync": 1759299571078,
   "schemaVersion": 1
 }
