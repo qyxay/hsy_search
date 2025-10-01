@@ -3,7 +3,7 @@
     "人物": {
       "items": {
         "人物": {
-          "likesCount": 1,
+          "likesCount": 2,
           "commentsCount": 3,
           "commentsList": [
             {
@@ -180,6 +180,6 @@
       }
     }
   },
-  "lastSync": 1759300337430,
+  "lastSync": 1759300343247,
   "schemaVersion": 1
 }
