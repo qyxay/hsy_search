@@ -4,13 +4,19 @@
       "items": {
         "人物": {
           "likesCount": 0,
-          "commentsCount": 1,
+          "commentsCount": 2,
           "commentsList": [
             {
               "id": 1759242952570,
               "content": "1",
               "author": "用户",
               "time": "2025-09-30T14:35:52.570Z"
+            },
+            {
+              "id": 1759243892259,
+              "content": "2",
+              "author": "用户",
+              "time": "2025-09-30T14:51:32.259Z"
             }
           ]
         },
@@ -31,8 +37,15 @@
         },
         "人物 > 涂月 > 介绍": {
           "likesCount": 0,
-          "commentsCount": 0,
-          "commentsList": []
+          "commentsCount": 1,
+          "commentsList": [
+            {
+              "id": 1759299552169,
+              "content": "1+1",
+              "author": "用户",
+              "time": "2025-10-01T06:19:12.169Z"
+            }
+          ]
         },
         "人物 > 狐拾一": {
           "likesCount": 0,
@@ -55,6 +68,11 @@
           "commentsList": []
         },
         "人物 > 马里奥 > 句摘": {
+          "likesCount": 0,
+          "commentsCount": 0,
+          "commentsList": []
+        },
+        "人物 > 涂月 > 身份": {
           "likesCount": 0,
           "commentsCount": 0,
           "commentsList": []
@@ -149,5 +167,6 @@
       }
     }
   },
-  "lastSync": 1759298487741
+  "lastSync": 1759299552178,
+  "schemaVersion": 1
 }
