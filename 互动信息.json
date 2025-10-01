@@ -27,7 +27,7 @@
           ]
         },
         "人物 > 狐拾一 > 身份": {
-          "likesCount": 0,
+          "likesCount": 1,
           "commentsCount": 0,
           "commentsList": []
         },
@@ -180,6 +180,6 @@
       }
     }
   },
-  "lastSync": 1759300336159,
+  "lastSync": 1759300337430,
   "schemaVersion": 1
 }
