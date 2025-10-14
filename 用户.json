@@ -27,10 +27,10 @@
       "stats": {
         "totalLikes": 0,
         "totalComments": 0,
-        "searchCount": 0
+        "searchCount": 1
       }
     }
   },
-  "lastSync": 1760449120911,
+  "lastSync": 1760449128250,
   "schemaVersion": 1
 }
