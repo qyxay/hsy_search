@@ -42,12 +42,12 @@
         "bio": ""
       },
       "stats": {
-        "totalLikes": 0,
+        "totalLikes": 2,
         "totalComments": 0,
-        "searchCount": 0
+        "searchCount": 1
       }
     }
   },
-  "lastSync": 1760451098675,
+  "lastSync": 1760451115577,
   "schemaVersion": 1
 }
