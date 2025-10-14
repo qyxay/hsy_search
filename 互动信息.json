@@ -137,7 +137,7 @@
           "commentsList": []
         },
         "地方 > 迷雾神域": {
-          "likesCount": 0,
+          "likesCount": 1,
           "commentsCount": 0,
           "commentsList": []
         },
@@ -225,6 +225,6 @@
       }
     }
   },
-  "lastSync": 1760448075763,
+  "lastSync": 1760448079282,
   "schemaVersion": 1
 }
