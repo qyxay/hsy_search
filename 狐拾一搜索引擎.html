@@ -7,780 +7,1534 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#5B6BF9',
-                        level: {
-                            1: '#4285F4',
-                            2: '#34A853',
-                            3: '#FBBC05',
-                            4: '#EA4335',
-                            5: '#9C27B0'
-                        },
-                        category: '#8B5CF6',
-                        neutral: {
-                            50: '#F9FAFB',
-                            100: '#F3F4F6',
-                            200: '#E5E7EB',
-                            300: '#D1D5DB',
-                            600: '#4B5563',
-                            700: '#374151',
-                            800: '#1F2937',
-                        }
-                    },
-                    fontFamily: {
-                        inter: ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'card': '0 2px 8px rgba(0, 0, 0, 0.08)',
-                        'card-hover': '0 4px 16px rgba(0, 0, 0, 0.12)',
-                    },
-                    spacing: {
-                        '15': '3.75rem',
-                        '20': '5rem',
-                        '25': '6.25rem',
-                    }
+        tailwind.config = { theme: { extend: {
+            colors: {
+                primary: '#1E40AF',
+                secondary: '#64748B',
+                accent: '#F59E0B',
+                success: '#10B981',
+                zhihu: {
+                    blue: '#0F88EB',
+                    red: '#F43530',
+                    gray: '#8C8C8C',
+                    light: '#F7F8FA'
                 }
+            },
+            fontFamily: {
+                sans: ['Inter', 'system-ui', 'sans-serif']
+            },
+            boxShadow: {
+                'result': '0 1px 2px rgba(0,0,0,0.1)',
+                'zhihu-card': '0 1px 4px rgba(0,0,0,0.08)',
+                'zhihu-hover': '0 2px 8px rgba(0,0,0,0.12)'
             }
-        }
+        }}}
     </script>
     <style type="text/tailwindcss">
         @layer utilities {
-            .result-card {
-                @apply bg-white rounded-xl p-5 shadow-card hover:shadow-card-hover transition-all duration-300 border border-neutral-100 cursor-pointer;
-            }
-            .fade-in {
-                animation: fadeIn 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            }
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(4px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            .searching {
-                @apply opacity-80 cursor-not-allowed bg-neutral-100 text-neutral-500 border-neutral-200;
-            }
-            .level-badge {
-                @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium text-white;
-            }
-            .category-badge {
-                @apply inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-category/10 text-category;
-            }
-            .level-indent-1 { @apply pl-5; }
-            .level-indent-2 { @apply pl-10; }
-            .level-indent-3 { @apply pl-15; }
-            .level-indent-4 { @apply pl-20; }
-            .level-indent-5 { @apply pl-25; }
-            .expandable-content {
-                @apply mt-3 overflow-hidden transition-all duration-200 max-h-0;
-            }
-            .expandable-content.show {
-                @apply max-h-[2000px];
-            }
-            .card-header {
-                @apply flex items-center justify-between py-1 rounded-md transition-colors duration-200;
-            }
-            .card-title {
-                @apply flex items-center gap-2 flex-wrap;
-            }
-            .level-icon {
-                @apply text-neutral-400 transition-all duration-200 w-4 h-4 flex items-center justify-center;
-            }
-            .content-text {
-                @apply text-neutral-600 text-sm leading-relaxed;
-            }
-            .title-text {
-                @apply text-neutral-800 font-medium;
-            }
-            .match-highlight {
-                @apply bg-yellow-100 text-neutral-800 px-0.5 rounded;
-            }
+            .search-engine-bg { @apply bg-gradient-to-b from-white to-gray-50 min-h-screen; }
+            .zhihu-bg { @apply bg-zhihu-light min-h-screen; }
+            .result-item { @apply bg-white border border-gray-100 rounded-lg p-4 hover:shadow-md transition-all duration-200 cursor-pointer; }
+            .zhihu-card { @apply bg-white rounded-lg shadow-zhihu-card hover:shadow-zhihu-hover transition-all duration-300; }
+            .fade-in { animation: fadeIn 0.3s ease-out; }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+            .slide-in { animation: slideIn 0.4s ease-out; }
+            @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+            .highlight { @apply bg-yellow-100 text-black px-1 rounded; }
+            .zhihu-author { @apply flex items-center gap-2 mb-3; }
+            .zhihu-content { @apply text-gray-800 leading-relaxed; }
+            .zhihu-footer { @apply flex items-center justify-between mt-4 pt-3 border-t border-gray-100; }
+            .zhihu-action { @apply flex items-center gap-1 text-zhihu-gray hover:text-zhihu-red transition-colors duration-200 cursor-pointer; }
+            .data-detail { @apply bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100; }
+            .data-key { @apply font-bold text-lg text-gray-800 mr-2; }
+            .data-value-same { @apply text-gray-700; }
+            .data-value-newline { @apply text-gray-700 ml-4 block mt-1; }
+            .source-tag { @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium; }
+            .success-message { @apply bg-green-50 text-success border border-green-200; }
+            .back-button { @apply flex items-center text-zhihu-blue hover:text-zhihu-blue/80 transition-colors cursor-pointer; }
+            .like-button { @apply flex items-center gap-1 text-zhihu-gray hover:text-zhihu-red transition-colors duration-200 cursor-pointer; }
+            .liked { @apply text-zhihu-red; }
+            .comment-section { @apply mt-6 space-y-4; }
+            .comment-input { @apply w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-primary resize-none; }
+            .comment-item { @apply bg-gray-50 p-4 rounded-lg space-y-2; }
+            .comment-header { @apply flex items-center justify-between; }
+            .comment-author { @apply font-medium text-gray-800; }
+            .comment-time { @apply text-xs text-zhihu-gray; }
+            .comment-content { @apply text-gray-700 leading-relaxed; }
+            .sync-status { @apply fixed bottom-4 right-4 px-3 py-1 text-xs rounded-full flex items-center gap-1 z-50; }
+            .sync-pending { @apply bg-yellow-100 text-yellow-800; }
+            .sync-success { @apply bg-green-100 text-green-800; }
+            .sync-error { @apply bg-red-100 text-red-800; }
         }
     </style>
 </head>
-<body class="bg-neutral-50 min-h-screen font-inter text-neutral-700">
-    <div class="container mx-auto px-4 py-6 md:py-10 max-w-4xl">
-        <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-semibold text-center mb-6 md:mb-8 text-neutral-800">
-            狐拾一搜索引擎
-            <span class="block text-[0.8em] font-normal text-neutral-500 mt-1">——狐拾一搜索引擎——</span>
-        </h1>
-        
-        <!-- 搜索区域 -->
-        <div class="mb-5 md:mb-7 flex flex-col sm:flex-row gap-2">
-            <div class="flex-grow relative">
-                <input type="text" id="searchInput" placeholder="输入关键词搜索" 
-                       class="w-full px-4 py-2.5 rounded-lg border border-neutral-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all">
-                <!-- 清除按钮 -->
-                <button id="clearBtn" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 hidden">
-                    <i class="fa fa-times"></i>
+<body id="appBody" class="search-engine-bg font-sans">
+    <!-- 同步状态指示器 -->
+    <div id="syncStatus" class="sync-status hidden">
+        <i class="fa fa-spinner fa-spin"></i>
+        <span>同步中...</span>
+    </div>
+
+    <!-- 搜索页面布局 -->
+    <div id="searchLayout" class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- 搜索引擎标题 -->
+        <div class="text-center mb-8">
+            <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold text-primary mb-2">狐拾一搜索</h1>
+            <p class="text-secondary text-sm mb-4">智能数据检索引擎</p>
+        </div>
+
+        <!-- 搜索框 -->
+        <div class="mb-8 max-w-2xl mx-auto">
+            <div class="relative">
+                <input type="text" id="searchInput" placeholder="输入关键词搜索..." 
+                       class="w-full px-5 py-3 rounded-full border border-gray-200 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-lg">
+                <button id="searchBtn" onclick="executeSearch()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary/90 transition-all">
+                    <i class="fa fa-search mr-2"></i>搜索
+                </button>
+                <button id="clearBtn" onclick="clearSearch()" class="absolute right-24 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden">
+                    <i class="fa fa-times-circle text-xl"></i>
                 </button>
             </div>
-            <button id="searchBtn" class="bg-primary text-white px-4 md:px-5 py-2.5 rounded-lg hover:bg-primary/90 transition-all flex items-center justify-center gap-1.5 whitespace-nowrap">
-                <i class="fa fa-search"></i>
-                <span>搜索</span>
-            </button>
         </div>
-        
-        <!-- 状态提示 -->
-        <div id="status" class="mb-5 md:mb-7 p-3 rounded-lg bg-blue-50 text-blue-700 flex items-center gap-2">
-            <i class="fa fa-spinner fa-spin"></i>
-            <span>正在加载数据源</span>
+
+        <!-- 搜索状态 -->
+        <div id="searchStatus" class="mb-6 text-center p-4 bg-blue-50 text-blue-700 rounded-lg hidden">
+            <i class="fa fa-spinner fa-spin mr-2"></i><span id="searchStatusText">正在搜索...</span>
         </div>
-        
-        <!-- 搜索结果 -->
-        <div id="searchResults" class="hidden fade-in">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
-                <h2 class="text-lg font-medium text-neutral-700">
-                    找到 <span id="resultCount" class="text-primary font-semibold">0</span> 条相关结果
-                </h2>
-                <div class="flex items-center gap-3">
-                    <span id="matchTip" class="text-xs text-neutral-500 hidden">
-                        <i class="fa fa-star text-yellow-400 mr-1"></i>匹配度从高到低排序
-                    </span>
-                    <span id="resultTip" class="text-xs text-neutral-500">点击任意区域展开/折叠卡片</span>
-                </div>
+
+        <!-- 成功提示 -->
+        <div id="successMessage" class="mb-6 text-center p-4 success-message rounded-lg hidden">
+            <i class="fa fa-check-circle mr-2"></i><span id="successText"></span>
+        </div>
+
+        <!-- 信息提示 -->
+        <div id="infoMessage" class="mb-6 text-center p-4 bg-blue-50 text-blue-700 rounded-lg hidden">
+            <i class="fa fa-info-circle mr-2"></i><span id="infoText"></span>
+        </div>
+
+        <!-- 搜索结果统计 -->
+        <div id="resultStats" class="mb-6 text-sm text-gray-500 hidden">
+            找到 <span id="resultCount" class="text-primary font-semibold">0</span> 条结果，用时 <span id="searchTime" class="font-semibold">0</span> 秒
+        </div>
+
+        <!-- 搜索结果列表 -->
+        <div id="searchResults" class="space-y-3 hidden">
+            <!-- 结果项将通过JavaScript动态生成 -->
+        </div>
+
+        <!-- 无结果提示 -->
+        <div id="noResult" class="text-center py-12 bg-white rounded-lg border border-gray-100 hidden">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 text-gray-400 mb-4">
+                <i class="fa fa-search text-2xl"></i>
             </div>
-            <div id="resultsList" class="space-y-3 md:space-y-4">
-                <!-- 结果将在这里显示 -->
-            </div>
+            <p class="text-gray-600 text-lg mb-2">未找到相关结果</p>
+            <p class="text-gray-400 text-sm">建议：1. 简化关键词 2. 尝试同义词 3. 扩大搜索范围</p>
         </div>
-        
-        <!-- 无结果 -->
-        <div id="noResult" class="hidden py-10 md:py-12 bg-white rounded-xl shadow-sm border border-neutral-100 text-center">
-            <div class="inline-flex items-center justify-center w-12 md:w-16 h-12 md:h-16 rounded-full bg-neutral-50 text-neutral-300 mb-3 md:mb-4">
-                <i class="fa fa-search text-xl"></i>
-            </div>
-            <p class="text-neutral-600 mb-2">未找到相关结果</p>
-            <p class="text-xs text-neutral-400">建议：1.简化关键词 2.尝试同义词 3.扩大搜索范围</p>
-        </div>
-        
+
         <!-- 错误提示 -->
-        <div id="errorMessage" class="hidden p-3 md:p-3.5 mb-5 md:mb-7 bg-red-50 text-red-600 rounded-lg flex items-center gap-2 animate-fadeIn">
-            <i class="fa fa-exclamation-circle"></i>
-            <span id="errorText"></span>
+        <div id="errorMessage" class="mb-6 p-4 bg-red-50 text-red-600 rounded-lg hidden">
+            <i class="fa fa-exclamation-circle mr-2"></i><span id="errorText"></span>
+        </div>
+    </div>
+
+    <!-- 知乎格式详情页面 -->
+    <div id="zhihuLayout" class="hidden max-w-3xl mx-auto px-4 py-8">
+        <!-- 返回按钮 -->
+        <div class="flex justify-start items-center mb-6">
+            <div id="backBtn" onclick="switchToSearchView()" class="back-button">
+                <i class="fa fa-arrow-left mr-2"></i>返回搜索结果
+            </div>
+        </div>
+
+        <!-- 详情内容 -->
+        <div id="detailContent" class="zhihu-card p-6">
+            <!-- 内容将通过JavaScript动态生成 -->
+        </div>
+
+        <!-- 评论区 -->
+        <div id="commentSection" class="zhihu-card p-6 mt-6 hidden">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">评论 (<span id="commentCount">0</span>)</h3>
+            
+            <!-- 评论输入框 -->
+            <div class="mb-6">
+                <textarea id="commentInput" placeholder="写下你的评论..." 
+                          class="comment-input" rows="3"></textarea>
+                <button id="submitComment" onclick="submitComment()" 
+                        class="mt-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                    发表评论
+                </button>
+            </div>
+
+            <!-- 评论列表 -->
+            <div id="commentsList" class="space-y-4">
+                <!-- 评论将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+        <!-- 相关推荐 -->
+        <div id="relatedContent" class="mt-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">相关推荐</h3>
+            <div id="relatedList" class="space-y-3">
+                <!-- 相关内容将通过JavaScript动态生成 -->
+            </div>
         </div>
     </div>
 
     <script>
-        // 全局配置 - 已更新为你提供的新数据源链接
+        console.log('狐拾一搜索引擎初始化...');
+        
+        // 集成JSON格式整理工具
+        const githubJsonUtils = {
+            jsonFormatter: {
+                format(json, indent = 2) {
+                    try {
+                        const parsed = typeof json === 'string' ? JSON.parse(json) : json;
+                        return JSON.stringify(parsed, null, indent);
+                    } catch (error) {
+                        throw new Error(`JSON格式化失败：${error.message}`);
+                    }
+                },
+
+                minify(json) {
+                    try {
+                        const parsed = typeof json === 'string' ? JSON.parse(json) : json;
+                        return JSON.stringify(parsed);
+                    } catch (error) {
+                        throw new Error(`JSON压缩失败：${error.message}`);
+                    }
+                },
+
+                validate(jsonString) {
+                    try {
+                        JSON.parse(jsonString);
+                        return { valid: true, error: null };
+                    } catch (error) {
+                        return { valid: false, error: error.message };
+                    }
+                },
+
+                repair(jsonString) {
+                    try {
+                        let fixed = jsonString
+                            .replace(/'/g, '"')
+                            .replace(/,\s*([\]}])/g, '$1');
+                        const validation = this.validate(fixed);
+                        if (validation.valid) return fixed;
+                        throw new Error(validation.error);
+                    } catch (error) {
+                        throw new Error(`JSON修复失败：${error.message}`);
+                    }
+                }
+            },
+
+            async read(config) {
+                try {
+                    const required = ['username', 'repo', 'token', 'filePath'];
+                    const missing = required.filter(key => !config[key]);
+                    if (missing.length > 0) {
+                        return { success: false, message: `缺少必填参数：${missing.join(', ')}` };
+                    }
+
+                    const { username, repo, token, filePath, branch = 'main' } = config;
+                    const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${filePath}?ref=${branch}`;
+
+                    const response = await fetch(apiUrl, {
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json().catch(() => null);
+                        if (!data) return { success: false, message: '无法解析服务器响应' };
+
+                        try {
+                            const decodedContent = decodeURIComponent(escape(atob(data.content)));
+                            const validation = this.jsonFormatter.validate(decodedContent);
+                            if (!validation.valid) {
+                                return {
+                                    success: false,
+                                    message: `文件内容不是有效的JSON：${validation.error}`,
+                                    rawContent: decodedContent
+                                };
+                            }
+                            
+                            const jsonContent = JSON.parse(decodedContent);
+                            const formattedContent = this.jsonFormatter.format(jsonContent);
+                            
+                            return {
+                                success: true,
+                                content: jsonContent,
+                                formattedContent: formattedContent,
+                                rawContent: decodedContent,
+                                sha: data.sha,
+                                message: 'JSON文件读取成功'
+                            };
+                        } catch (parseErr) {
+                            return {
+                                success: false,
+                                message: `JSON解析失败：${parseErr.message}`,
+                                rawContent: data.content
+                            };
+                        }
+                    }
+
+                    const errorData = await response.json().catch(() => null);
+                    switch (response.status) {
+                        case 404:
+                            return { success: false, message: '文件不存在', notFound: true };
+                        case 401:
+                            return { success: false, message: '无效的访问令牌' };
+                        case 403:
+                            return { success: false, message: '令牌权限不足' };
+                        case 409:
+                            return { success: false, message: '路径冲突', conflict: true };
+                        default:
+                            return {
+                                success: false,
+                                message: `请求失败：${response.status} ${response.statusText}`,
+                                errorDetails: errorData || {}
+                            };
+                    }
+
+                } catch (networkErr) {
+                    return {
+                        success: false,
+                        message: `网络错误：${networkErr.message || '未知网络问题'}`
+                    };
+                }
+            },
+
+            async write(config) {
+                try {
+                    const required = ['username', 'repo', 'token', 'filePath', 'content', 'commitMessage'];
+                    const missing = required.filter(key => !config[key]);
+                    if (missing.length > 0) {
+                        return { success: false, message: `缺少必填参数：${missing.join(', ')}` };
+                    }
+
+                    let content = config.content;
+                    if (typeof content === 'string') {
+                        const validation = this.jsonFormatter.validate(content);
+                        if (!validation.valid) {
+                            try {
+                                content = this.jsonFormatter.repair(content);
+                            } catch (repairErr) {
+                                return { success: false, message: `JSON格式错误：${repairErr.message}` };
+                            }
+                        }
+                        content = JSON.parse(content);
+                    }
+
+                    if (typeof content !== 'object' || content === null) {
+                        return { success: false, message: 'content必须是有效的JSON对象' };
+                    }
+
+                    const {
+                        username, repo, token, filePath,
+                        commitMessage, branch = 'main', sha = null,
+                        description = ''
+                    } = config;
+
+                    const jsonString = this.jsonFormatter.format(content);
+                    const encodedContent = btoa(unescape(encodeURIComponent(jsonString)));
+
+                    const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${filePath}`;
+                    const response = await fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: description ? `${commitMessage}\n\n${description}` : commitMessage,
+                            content: encodedContent,
+                            branch,
+                            ...(sha && { sha })
+                        })
+                    });
+
+                    const responseData = await response.json().catch(() => null);
+                    if (response.ok) {
+                        return {
+                            success: true,
+                            message: 'JSON文件写入成功',
+                            sha: responseData?.content?.sha || '',
+                            commit: responseData?.commit || {},
+                            content: content,
+                            formattedContent: jsonString
+                        };
+                    }
+
+                    switch (response.status) {
+                        case 401: return { success: false, message: '无效的访问令牌' };
+                        case 403: return { success: false, message: '令牌权限不足' };
+                        case 409: return { success: false, message: '路径冲突', conflict: true };
+                        case 422: return { success: false, message: '更新冲突，请重新获取SHA', conflict: true };
+                        default: return {
+                            success: false,
+                            message: `请求失败：${response.status} ${response.statusText}`,
+                            errorDetails: responseData || {}
+                        };
+                    }
+
+                } catch (networkErr) {
+                    return {
+                        success: false,
+                        message: `网络错误：${networkErr.message || '未知网络问题'}`
+                    };
+                }
+            }
+        };
+
+        // 互动数据配置
+        const INTERACTION_CONFIG = {
+            username: "qyxay",
+            repo: "hsy_search",
+            token: "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",
+            filePath: "互动信息.json",
+            branch: "main"
+        };
+
         const CONFIG = {
-            dataUrl: 'https://qyxay.github.io/hsy_search/%E8%B5%84%E6%96%99%E5%BA%93.json', // 新的数据源地址
+            dataUrl: 'https://qyxay.github.io/hsy_search/%E8%B5%84%E6%96%99%E5%BA%93.json',
             excludedPath: ['person'],
-            maxDisplayLevel: 5,
-            fetchTimeout: 10000,
-            maxResultAnimationDelay: 500,
-            contentMaxLength: 150,
+            maxDisplayLevel: 2,
+            fetchTimeout: 20000,
+            searchResultMaxLength: 70,
+            tagColors: [
+                'bg-blue-100 text-blue-800',
+                'bg-green-100 text-green-800',
+                'bg-purple-100 text-purple-800',
+                'bg-yellow-100 text-yellow-800',
+                'bg-red-100 text-red-800',
+                'bg-indigo-100 text-indigo-800',
+                'bg-pink-100 text-pink-800',
+                'bg-teal-100 text-teal-800',
+                'bg-orange-100 text-orange-800',
+                'bg-gray-100 text-gray-800'
+            ],
+            excludeHighlightPaths: [
+                ['神域那些事', '尘夔惊天一战']
+            ],
+            sync: {
+                maxRetries: 3,
+                retryDelay: 1000
+            }
         };
 
-        // 本地备份数据 - 当远程数据失败时使用
-        const BACKUP_DATA = {
-            // 可选：添加备份数据，格式与远程JSON一致
-            // "分类1": {
-            //     "子分类1": "内容1",
-            //     "子分类2": { ... }
-            // }
-            
-        };
-
-        // 全局状态
         const STATE = {
             data: null,
+            interactionData: null,
+            interactionSha: null,
             isSearching: false,
             lastQuery: '',
+            searchResults: [],
+            currentView: 'search',
+            currentItem: null,
+            rootTags: new Map(),
+            likedItems: new Set(), // 记录用户已点赞的项目
+            loading: false,
+            syncInProgress: false,
+            syncQueue: []
         };
 
         // DOM元素缓存
         const DOM = {
+            appBody: document.getElementById('appBody'),
+            searchLayout: document.getElementById('searchLayout'),
+            zhihuLayout: document.getElementById('zhihuLayout'),
             searchInput: document.getElementById('searchInput'),
             searchBtn: document.getElementById('searchBtn'),
             clearBtn: document.getElementById('clearBtn'),
-            status: document.getElementById('status'),
-            resultsContainer: document.getElementById('searchResults'),
-            resultsList: document.getElementById('resultsList'),
+            searchStatus: document.getElementById('searchStatus'),
+            searchStatusText: document.getElementById('searchStatusText'),
+            successMessage: document.getElementById('successMessage'),
+            successText: document.getElementById('successText'),
+            infoMessage: document.getElementById('infoMessage'),
+            infoText: document.getElementById('infoText'),
+            resultStats: document.getElementById('resultStats'),
             resultCount: document.getElementById('resultCount'),
-            matchTip: document.getElementById('matchTip'),
+            searchTime: document.getElementById('searchTime'),
+            searchResults: document.getElementById('searchResults'),
             noResult: document.getElementById('noResult'),
             errorMessage: document.getElementById('errorMessage'),
             errorText: document.getElementById('errorText'),
+            backBtn: document.getElementById('backBtn'),
+            detailContent: document.getElementById('detailContent'),
+            relatedContent: document.getElementById('relatedContent'),
+            relatedList: document.getElementById('relatedList'),
+            commentSection: document.getElementById('commentSection'),
+            commentInput: document.getElementById('commentInput'),
+            submitComment: document.getElementById('submitComment'),
+            commentsList: document.getElementById('commentsList'),
+            commentCount: document.getElementById('commentCount'),
+            syncStatus: document.getElementById('syncStatus')
         };
 
-        /**
-         * 尝试修复常见的JSON格式错误
-         */
-        function tryFixJson(jsonString) {
-            try {
-                // 尝试修复未加双引号的属性名
-                let fixed = jsonString
-                    // 匹配未加引号的属性名（简单情况）
-                    .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)(\s*:)/g, '$1"$2"$3')
-                    // 替换单引号为双引号
-                    .replace(/'/g, '"')
-                    // 移除末尾多余的逗号
-                    .replace(/,\s*([}\]])/g, ' $1');
-                
-                return fixed;
-            } catch (e) {
-                console.error('JSON修复失败:', e);
-                return jsonString;
+        console.log('DOM元素缓存完成');
+
+        // 同步状态管理
+        function showSyncStatus(type, message, duration = 3000) {
+            if (!DOM.syncStatus) return;
+            
+            DOM.syncStatus.classList.remove('hidden', 'sync-pending', 'sync-success', 'sync-error');
+            
+            switch(type) {
+                case 'pending':
+                    DOM.syncStatus.classList.add('sync-pending');
+                    DOM.syncStatus.innerHTML = '<i class="fa fa-spinner fa-spin"></i><span>' + message + '</span>';
+                    break;
+                case 'success':
+                    DOM.syncStatus.classList.add('sync-success');
+                    DOM.syncStatus.innerHTML = '<i class="fa fa-check"></i><span>' + message + '</span>';
+                    setTimeout(() => DOM.syncStatus.classList.add('hidden'), duration);
+                    break;
+                case 'error':
+                    DOM.syncStatus.classList.add('sync-error');
+                    DOM.syncStatus.innerHTML = '<i class="fa fa-exclamation"></i><span>' + message + '</span>';
+                    setTimeout(() => DOM.syncStatus.classList.add('hidden'), duration);
+                    break;
             }
         }
 
-        /**
-         * 工具函数：显示错误提示
-         */
+        // 工具函数
         function showError(message, duration = 5000) {
-            DOM.errorText.textContent = message;
-            DOM.errorMessage.classList.remove('hidden');
-            setTimeout(() => {
-                DOM.errorMessage.classList.add('hidden');
-            }, duration);
-        }
-
-        /**
-         * 工具函数：检查路径是否需要排除
-         */
-        function isExcludedPath(path) {
-            if (path.length < CONFIG.excludedPath.length) return false;
-            for (let i = 0; i < CONFIG.excludedPath.length; i++) {
-                if (path[i] !== CONFIG.excludedPath[i]) {
-                    return false;
-                }
+            console.error('错误:', message);
+            if (DOM.errorText && DOM.errorMessage) {
+                DOM.errorText.textContent = message;
+                DOM.errorMessage.classList.remove('hidden');
+                setTimeout(() => {
+                    if (DOM.errorMessage) DOM.errorMessage.classList.add('hidden');
+                }, duration);
             }
-            return true;
         }
 
-        /**
-         * 工具函数：高亮匹配的关键词
-         */
-        function highlightMatch(text, query) {
-            if (!query || typeof text !== 'string') return text;
-            const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
-            return text.replace(regex, '<span class="match-highlight">$1</span>');
+        function showSuccess(message, duration = 3000) {
+            console.log('成功:', message);
+            if (DOM.successText && DOM.successMessage) {
+                DOM.successText.textContent = message;
+                DOM.successMessage.classList.remove('hidden');
+                setTimeout(() => {
+                    if (DOM.successMessage) DOM.successMessage.classList.add('hidden');
+                }, duration);
+            }
         }
 
-        /**
-         * 工具函数：转义正则特殊字符
-         */
+        function showInfo(message, duration = 5000) {
+            console.log('信息:', message);
+            if (DOM.infoText && DOM.infoMessage) {
+                DOM.infoText.textContent = message;
+                DOM.infoMessage.classList.remove('hidden');
+                setTimeout(() => {
+                    if (DOM.infoMessage) DOM.infoMessage.classList.add('hidden');
+                }, duration);
+            }
+        }
+
+        function hideAllMessages() {
+            if (DOM.searchStatus) DOM.searchStatus.classList.add('hidden');
+            if (DOM.successMessage) DOM.successMessage.classList.add('hidden');
+            if (DOM.infoMessage) DOM.infoMessage.classList.add('hidden');
+            if (DOM.noResult) DOM.noResult.classList.add('hidden');
+            if (DOM.errorMessage) DOM.errorMessage.classList.add('hidden');
+        }
+
         function escapeRegExp(str) {
             return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         }
 
-        /**
-         * 工具函数：格式化内容
-         */
-        function formatContent(value, query) {
+        function highlightMatch(text, query, pathParts = null) {
+            if (!query || typeof text !== 'string') return text;
+            
+            if (pathParts && shouldExcludeHighlight(pathParts)) {
+                return text;
+            }
+            
+            const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        function shouldExcludeHighlight(pathParts) {
+            if (!pathParts || pathParts.length === 0) return false;
+            
+            return CONFIG.excludeHighlightPaths.some(excludePath => {
+                if (excludePath.length > pathParts.length) return false;
+                for (let i = 0; i < excludePath.length; i++)
+                    if (pathParts[i] !== excludePath[i]) return false;
+                return true;
+            });
+        }
+
+        // 初始化第一层标签
+        function initRootTags(data) {
+            console.log('初始化第一层标签...');
+            if (!data || typeof data !== 'object' || data === null) return;
+            
+            const rootKeys = Object.keys(data);
+            rootKeys.forEach((key, index) => {
+                const colorIndex = index % CONFIG.tagColors.length;
+                STATE.rootTags.set(key, CONFIG.tagColors[colorIndex]);
+            });
+            
+            console.log('第一层标签初始化完成:', Array.from(STATE.rootTags.entries()));
+        }
+
+        // 获取第一层标签
+        function getRootTag(path) {
+            if (!path || path.length === 0) return '';
+            
+            const firstPart = path[0];
+            if (STATE.rootTags.has(firstPart)) {
+                const bgColor = STATE.rootTags.get(firstPart);
+                return `<span class="source-tag ${bgColor} mr-2">${firstPart}</span>`;
+            }
+            
+            return '';
+        }
+
+        // 格式化搜索结果内容
+        function formatSearchResultContent(obj, query, pathParts) {
             try {
-                if (value === null) return '<span class="text-neutral-400">null</span>';
-                if (value === undefined) return '<span class="text-neutral-400">undefined</span>';
-                if (typeof value !== 'object') {
-                    // 非对象类型：直接显示并高亮
-                    const text = String(value);
-                    const highlighted = highlightMatch(text, query);
-                    // 超长文本截断
-                    return text.length > CONFIG.contentMaxLength 
-                        ? `${highlighted.substring(0, CONFIG.contentMaxLength)}...` 
+                if (obj === null || obj === undefined) return '';
+                
+                if (typeof obj === 'object') {
+                    let contentParts = [];
+                    
+                    if (Array.isArray(obj)) {
+                        contentParts.push('[');
+                        for (let i = 0; i < Math.min(obj.length, 3); i++) {
+                            const item = obj[i];
+                            if (typeof item === 'string') {
+                                contentParts.push(`"${item.length > 10 ? item.substring(0, 10) + '...' : item}"`);
+                            } else if (typeof item === 'object' && item !== null) {
+                                contentParts.push('{...}');
+                            } else {
+                                contentParts.push(String(item));
+                            }
+                        }
+                        if (obj.length > 3) contentParts.push('...');
+                        contentParts.push(']');
+                        return contentParts.join(', ');
+                    } else {
+                        const keys = Object.keys(obj);
+                        for (const key of keys) {
+                            const value = obj[key];
+                            let valueStr = '';
+                            
+                            if (typeof value === 'string') {
+                                valueStr = value;
+                            } else if (typeof value === 'object' && value !== null) {
+                                valueStr = JSON.stringify(value);
+                            } else {
+                                valueStr = String(value);
+                            }
+                            
+                            contentParts.push(`${key}: ${valueStr}`);
+                        }
+                        
+                        let fullContent = contentParts.join('  ');
+                        if (fullContent.length > CONFIG.searchResultMaxLength) {
+                            fullContent = fullContent.substring(0, CONFIG.searchResultMaxLength) + '...';
+                        }
+                        
+                        return highlightMatch(fullContent, query, pathParts);
+                    }
+                } else {
+                    const text = String(obj);
+                    const highlighted = highlightMatch(text, query, pathParts);
+                    return text.length > CONFIG.searchResultMaxLength
+                        ? `${highlighted.substring(0, CONFIG.searchResultMaxLength)}...`
                         : highlighted;
                 }
-
-                // 对象/数组类型：显示结构信息
-                if (Array.isArray(value)) {
-                    return `<span class="text-neutral-500">数组 (${value.length} 个元素)</span>`;
-                } else {
-                    const keys = Object.keys(value);
-                    return `<span class="text-neutral-500">对象 (${keys.length} 个属性)</span>`;
-                }
             } catch (err) {
-                console.error('内容格式化错误:', err);
-                return '<span class="text-red-500">内容加载失败</span>';
+                console.error('格式化搜索结果失败:', err);
+                return '';
             }
         }
 
-        /**
-         * 数据加载：带格式修复和备份机制
-         */
+        function isExcludedPath(path) {
+            if (path.length < CONFIG.excludedPath.length) return false;
+            for (let i = 0; i < CONFIG.excludedPath.length; i++)
+                if (path[i] !== CONFIG.excludedPath[i]) return false;
+            return true;
+        }
+
+        function renderDataAsHumanReadable(data, query, currentPath = []) {
+            try {
+                if (data === null || data === undefined) return '<span class="text-gray-400">null</span>';
+                
+                if (typeof data !== 'object') {
+                    const text = String(data);
+                    const highlighted = highlightMatch(text, query, currentPath);
+                    return `<span class="text-gray-700">${highlighted}</span>`;
+                }
+
+                if (Array.isArray(data)) {
+                    if (data.length === 0) return '<span class="text-gray-400">[]</span>';
+                    
+                    let html = '<div class="space-y-2">';
+                    data.forEach((item, index) => {
+                        const newPath = [...currentPath, `[${index}]`];
+                        html += `
+                            <div class="flex items-start">
+                                <span class="text-gray-500 mr-2">[${index}]</span>
+                                <div class="flex-1">${renderDataAsHumanReadable(item, query, newPath)}</div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    return html;
+                }
+
+                const keys = Object.keys(data);
+                if (keys.length === 0) return '<span class="text-gray-400">{}</span>';
+                
+                let html = '<div class="space-y-3">';
+                keys.forEach(key => {
+                    const value = data[key];
+                    const newPath = [...currentPath, key];
+                    const highlightedKey = highlightMatch(key, query, newPath);
+                    
+                    if (typeof value === 'string' && value.length <= 15) {
+                        const highlightedValue = highlightMatch(value, query, newPath);
+                        html += `
+                            <div class="flex items-center">
+                                <span class="data-key">${highlightedKey}：</span>
+                                <span class="data-value-same">${highlightedValue}</span>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div>
+                                <span class="data-key">${highlightedKey}：</span>
+                                <div class="data-value-newline">${renderDataAsHumanReadable(value, query, newPath)}</div>
+                            </div>
+                        `;
+                    }
+                });
+                html += '</div>';
+                return html;
+            } catch (err) {
+                console.error('渲染数据失败:', err);
+                return '<span class="text-red-500">数据渲染失败</span>';
+            }
+        }
+
+        // 互动数据管理 - 带重试机制的加载函数
+        async function loadInteractionData(retries = 0) {
+            try {
+                console.log(`加载互动数据 (重试: ${retries})...`);
+                const result = await githubJsonUtils.read(INTERACTION_CONFIG);
+                
+                if (result.success) {
+                    STATE.interactionData = result.content;
+                    STATE.interactionSha = result.sha;
+                    console.log('互动数据加载成功');
+                    
+                    // 恢复已点赞状态
+                    if (STATE.interactionData && STATE.interactionData.categories) {
+                        Object.values(STATE.interactionData.categories).forEach(category => {
+                            Object.entries(category.items).forEach(([path, item]) => {
+                                if (item.likesCount > 0) {
+                                    // 简单处理：假设当前用户是最后一个点赞的人
+                                    // 实际应用中应该有用户系统来跟踪谁点赞了
+                                    STATE.likedItems.add(path);
+                                }
+                            });
+                        });
+                    }
+                    
+                    return true;
+                } else if (result.notFound) {
+                    // 如果文件不存在，创建初始数据结构
+                    console.log('互动数据文件不存在，创建初始结构');
+                    STATE.interactionData = {
+                        categories: {},
+                        lastSync: Date.now(),
+                        schemaVersion: 1
+                    };
+                    return await saveInteractionData('初始化互动数据文件');
+                } else {
+                    // 如果有重试次数，进行重试
+                    if (retries < CONFIG.sync.maxRetries) {
+                        console.log(`加载失败，${CONFIG.sync.retryDelay}ms后重试...`);
+                        await new Promise(resolve => setTimeout(resolve, CONFIG.sync.retryDelay));
+                        return loadInteractionData(retries + 1);
+                    }
+                    
+                    showError(`加载互动数据失败：${result.message}`);
+                    return false;
+                }
+            } catch (error) {
+                console.error('加载互动数据时出错:', error);
+                
+                // 如果有重试次数，进行重试
+                if (retries < CONFIG.sync.maxRetries) {
+                    console.log(`加载失败，${CONFIG.sync.retryDelay}ms后重试...`);
+                    await new Promise(resolve => setTimeout(resolve, CONFIG.sync.retryDelay));
+                    return loadInteractionData(retries + 1);
+                }
+                
+                showError('加载互动功能失败');
+                return false;
+            }
+        }
+
+        // 带重试机制的保存函数
+        async function saveInteractionData(commitMessage = '更新互动数据', retries = 0) {
+            try {
+                if (!STATE.interactionData) return false;
+                
+                // 显示同步状态
+                showSyncStatus('pending', '同步中...');
+                STATE.syncInProgress = true;
+                
+                STATE.interactionData.lastSync = Date.now();
+                
+                const config = {
+                    ...INTERACTION_CONFIG,
+                    content: STATE.interactionData,
+                    commitMessage: commitMessage,
+                    sha: STATE.interactionSha
+                };
+                
+                const result = await githubJsonUtils.write(config);
+                
+                if (result.success) {
+                    STATE.interactionSha = result.sha;
+                    console.log('互动数据保存成功');
+                    showSyncStatus('success', '同步成功');
+                    STATE.syncInProgress = false;
+                    
+                    // 处理同步队列中的下一个任务
+                    processSyncQueue();
+                    
+                    return true;
+                } else if (result.conflict && retries < CONFIG.sync.maxRetries) {
+                    // 冲突，重新获取最新数据后重试
+                    console.log(`数据冲突，${CONFIG.sync.retryDelay}ms后重试...`);
+                    await loadInteractionData();
+                    await new Promise(resolve => setTimeout(resolve, CONFIG.sync.retryDelay));
+                    return saveInteractionData(commitMessage, retries + 1);
+                } else {
+                    showSyncStatus('error', `同步失败: ${result.message}`, 5000);
+                    showError(`保存互动数据失败：${result.message}`);
+                    STATE.syncInProgress = false;
+                    
+                    // 处理同步队列中的下一个任务
+                    processSyncQueue();
+                    
+                    return false;
+                }
+            } catch (error) {
+                console.error('保存互动数据时出错:', error);
+                
+                if (retries < CONFIG.sync.maxRetries) {
+                    console.log(`保存失败，${CONFIG.sync.retryDelay}ms后重试...`);
+                    await new Promise(resolve => setTimeout(resolve, CONFIG.sync.retryDelay));
+                    return saveInteractionData(commitMessage, retries + 1);
+                }
+                
+                showSyncStatus('error', '同步失败', 5000);
+                showError('保存互动数据失败');
+                STATE.syncInProgress = false;
+                
+                // 处理同步队列中的下一个任务
+                processSyncQueue();
+                
+                return false;
+            }
+        }
+
+        // 同步队列处理
+        function queueSyncOperation(operation) {
+            STATE.syncQueue.push(operation);
+            if (!STATE.syncInProgress) {
+                processSyncQueue();
+            }
+        }
+
+        function processSyncQueue() {
+            if (STATE.syncQueue.length === 0) return;
+            
+            const nextOperation = STATE.syncQueue.shift();
+            nextOperation();
+        }
+
+        function getCategoryFromPath(pathParts) {
+            if (pathParts && pathParts.length > 0) {
+                return pathParts[0];
+            }
+            return 'unknown';
+        }
+
+        function getItemInteractionData(item) {
+            if (!STATE.interactionData || !item || !item.pathParts) {
+                return { likesCount: 0, commentsCount: 0, commentsList: [] };
+            }
+            
+            const category = getCategoryFromPath(item.pathParts);
+            const itemPath = item.path;
+            
+            if (!STATE.interactionData.categories[category]) {
+                STATE.interactionData.categories[category] = { items: {} };
+            }
+            
+            if (!STATE.interactionData.categories[category].items[itemPath]) {
+                STATE.interactionData.categories[category].items[itemPath] = {
+                    likesCount: 0,
+                    commentsCount: 0,
+                    commentsList: []
+                };
+            }
+            
+            return STATE.interactionData.categories[category].items[itemPath];
+        }
+
+        async function toggleLike(item) {
+            try {
+                if (!item || !item.pathParts) return;
+                
+                // 先更新本地状态
+                const itemData = getItemInteractionData(item);
+                const itemPath = item.path;
+                const wasLiked = STATE.likedItems.has(itemPath);
+                
+                if (wasLiked) {
+                    // 取消点赞
+                    itemData.likesCount = Math.max(0, itemData.likesCount - 1);
+                    STATE.likedItems.delete(itemPath);
+                } else {
+                    // 点赞
+                    itemData.likesCount += 1;
+                    STATE.likedItems.add(itemPath);
+                }
+                
+                // 更新界面（立即反馈）
+                updateLikeDisplay(item);
+                
+                // 将同步操作加入队列
+                queueSyncOperation(async () => {
+                    const success = await saveInteractionData('更新点赞数据');
+                    if (!success) {
+                        // 同步失败，回滚本地状态
+                        console.log('点赞同步失败，回滚状态');
+                        if (wasLiked) {
+                            itemData.likesCount += 1;
+                            STATE.likedItems.add(itemPath);
+                        } else {
+                            itemData.likesCount = Math.max(0, itemData.likesCount - 1);
+                            STATE.likedItems.delete(itemPath);
+                        }
+                        updateLikeDisplay(item);
+                        showError('点赞同步失败，请重试');
+                    } else {
+                        showSuccess(STATE.likedItems.has(itemPath) ? '点赞成功' : '取消点赞成功');
+                    }
+                });
+                
+            } catch (error) {
+                console.error('点赞操作失败:', error);
+                showError('点赞操作失败');
+            }
+        }
+
+        async function submitComment() {
+            try {
+                if (!STATE.currentItem || !DOM.commentInput) return;
+                
+                const commentText = DOM.commentInput.value.trim();
+                if (!commentText) {
+                    showError('请输入评论内容');
+                    return;
+                }
+                
+                // 先更新本地状态
+                const itemData = getItemInteractionData(STATE.currentItem);
+                
+                const newComment = {
+                    id: Date.now(),
+                    content: commentText,
+                    author: '用户',
+                    time: new Date().toISOString()
+                };
+                
+                itemData.commentsList.push(newComment);
+                itemData.commentsCount = itemData.commentsList.length;
+                
+                // 更新界面（立即反馈）
+                DOM.commentInput.value = '';
+                renderComments(STATE.currentItem);
+                
+                // 将同步操作加入队列
+                queueSyncOperation(async () => {
+                    const success = await saveInteractionData('添加新评论');
+                    if (!success) {
+                        // 同步失败，回滚本地状态
+                        console.log('评论同步失败，回滚状态');
+                        itemData.commentsList.pop();
+                        itemData.commentsCount = itemData.commentsList.length;
+                        renderComments(STATE.currentItem);
+                        showError('评论同步失败，请重试');
+                    } else {
+                        showSuccess('评论发表成功');
+                    }
+                });
+                
+            } catch (error) {
+                console.error('提交评论失败:', error);
+                showError('提交评论失败');
+            }
+        }
+
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('zh-CN');
+        }
+
+        function renderComments(item) {
+            try {
+                if (!DOM.commentsList || !DOM.commentCount) return;
+                
+                const itemData = getItemInteractionData(item);
+                
+                DOM.commentCount.textContent = itemData.commentsCount;
+                
+                if (itemData.commentsList.length === 0) {
+                    DOM.commentsList.innerHTML = '<div class="text-center text-gray-400 py-4">暂无评论</div>';
+                    return;
+                }
+                
+                // 按时间倒序排列
+                const sortedComments = [...itemData.commentsList].sort((a, b) => 
+                    new Date(b.time) - new Date(a.time)
+                );
+                
+                DOM.commentsList.innerHTML = sortedComments.map(comment => `
+                    <div class="comment-item fade-in">
+                        <div class="comment-header">
+                            <span class="comment-author">${comment.author}</span>
+                            <span class="comment-time">${formatTime(comment.time)}</span>
+                        </div>
+                        <div class="comment-content">${comment.content.replace(/\n/g, '<br>')}</div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('渲染评论失败:', error);
+            }
+        }
+
+        function updateLikeDisplay(item) {
+            try {
+                const itemData = getItemInteractionData(item);
+                const itemPath = item.path;
+                
+                // 更新搜索结果中的点赞显示
+                const resultItems = document.querySelectorAll('.result-item');
+                resultItems.forEach(resultItem => {
+                    const likeBtn = resultItem.querySelector(`[data-path="${itemPath}"]`);
+                    if (likeBtn) {
+                        const likeCount = likeBtn.querySelector('.like-count');
+                        likeCount.textContent = itemData.likesCount;
+                        
+                        if (STATE.likedItems.has(itemPath)) {
+                            likeBtn.classList.add('liked');
+                            likeBtn.querySelector('i').classList.remove('fa-heart-o');
+                            likeBtn.querySelector('i').classList.add('fa-heart');
+                        } else {
+                            likeBtn.classList.remove('liked');
+                            likeBtn.querySelector('i').classList.remove('fa-heart');
+                            likeBtn.querySelector('i').classList.add('fa-heart-o');
+                        }
+                    }
+                });
+                
+                // 更新详情页面中的点赞显示
+                const detailLikeBtn = document.querySelector('#detailLikeBtn');
+                if (detailLikeBtn) {
+                    const likeCount = detailLikeBtn.querySelector('.like-count');
+                    likeCount.textContent = itemData.likesCount;
+                    
+                    if (STATE.likedItems.has(itemPath)) {
+                        detailLikeBtn.classList.add('liked');
+                        detailLikeBtn.querySelector('i').classList.remove('fa-heart-o');
+                        detailLikeBtn.querySelector('i').classList.add('fa-heart');
+                    } else {
+                        detailLikeBtn.classList.remove('liked');
+                        detailLikeBtn.querySelector('i').classList.remove('fa-heart');
+                        detailLikeBtn.querySelector('i').classList.add('fa-heart-o');
+                    }
+                }
+                
+            } catch (error) {
+                console.error('更新点赞显示失败:', error);
+            }
+        }
+
+        // 数据加载和搜索
         async function loadData() {
             try {
-                updateStatus('加载中', '正在连接新数据源...', 'blue');
-                
-                // 创建超时控制器
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => {
                     controller.abort();
                     throw new Error('数据加载超时');
                 }, CONFIG.fetchTimeout);
 
-                // 尝试加载远程数据
-                try {
-                    const response = await fetch(CONFIG.dataUrl, { signal: controller.signal });
-                    clearTimeout(timeoutId);
-                    
-                    if (!response.ok) {
-                        throw new Error(`服务器响应错误 (${response.status})`);
-                    }
-                    
-                    // 获取原始文本并尝试修复格式
-                    const responseText = await response.text();
-                    let fixedText = tryFixJson(responseText);
-                    
-                    try {
-                        // 先尝试解析修复后的JSON
-                        const remoteData = JSON.parse(fixedText);
-                        STATE.data = remoteData;
-                        updateStatus('成功', '新数据源加载完成，可输入关键词搜索', 'green');
-                        DOM.searchBtn.disabled = false;
-                        DOM.searchBtn.classList.remove('searching');
-                        return;
-                    } catch (fixedJsonErr) {
-                        console.error('修复后JSON仍解析失败:', fixedJsonErr);
-                        // 尝试解析原始文本（未修复的）
-                        try {
-                            const remoteData = JSON.parse(responseText);
-                            STATE.data = remoteData;
-                            updateStatus('成功', '新数据源加载完成，可输入关键词搜索', 'green');
-                            DOM.searchBtn.disabled = false;
-                            DOM.searchBtn.classList.remove('searching');
-                            return;
-                        } catch (originalJsonErr) {
-                            throw new Error(`新数据源格式错误: ${originalJsonErr.message}（已尝试自动修复但失败）`);
-                        }
-                    }
-                } catch (fetchErr) {
-                    console.error('新数据源加载错误:', fetchErr);
-                    
-                    // 尝试使用本地备份数据
-                    if (Object.keys(BACKUP_DATA).length > 0) {
-                        STATE.data = BACKUP_DATA;
-                        updateStatus('警告', '新数据源加载失败，已使用本地备份数据', 'yellow');
-                        DOM.searchBtn.disabled = false;
-                        DOM.searchBtn.classList.remove('searching');
-                        showError(`新数据加载失败: ${fetchErr.message}，已切换到本地备份`, 8000);
-                        return;
-                    }
-                    
-                    // 没有备份数据，彻底失败
-                    throw new Error(`无法加载新数据: ${fetchErr.message}`);
-                }
+                const response = await fetch(CONFIG.dataUrl, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) throw new Error(`服务器响应错误 (${response.status})`);
+                STATE.data = await response.json();
 
+                initRootTags(STATE.data);
+                
+                // 并行加载互动数据
+                await Promise.all([
+                    loadInteractionData()
+                ]);
+                
+                showSuccess('数据源加载成功，可以开始搜索');
+                
             } catch (err) {
-                // 所有加载方式都失败
-                updateStatus('失败', err.message, 'red');
-                DOM.searchBtn.disabled = true;
-                DOM.searchBtn.classList.add('searching');
-                showError(`数据加载失败：${err.message}`, 8000);
-                console.error('数据加载详细错误:', err);
+                console.error('数据加载失败:', err);
+                showError(`数据加载失败：${err.message}`);
             }
         }
 
-        /**
-         * 更新状态提示
-         */
-        function updateStatus(type, message, color) {
-            const colorMap = {
-                blue: 'bg-blue-50 text-blue-700',
-                green: 'bg-green-50 text-green-700',
-                red: 'bg-red-50 text-red-600',
-                yellow: 'bg-yellow-50 text-yellow-700'
-            };
-            const iconMap = {
-                blue: '<i class="fa fa-spinner fa-spin"></i>',
-                green: '<i class="fa fa-check-circle"></i>',
-                red: '<i class="fa fa-exclamation-circle"></i>',
-                yellow: '<i class="fa fa-exclamation-triangle"></i>'
-            };
-
-            DOM.status.className = `mb-5 md:mb-7 p-3 rounded-lg ${colorMap[color]} flex items-center gap-2`;
-            DOM.status.innerHTML = `${iconMap[color]}<span>${message}</span>`;
-        }
-
-        /**
-         * 切换卡片展开/折叠
-         */
-        function toggleCardExpand(cardEl) {
-            const contentEl = cardEl.querySelector('.expandable-content');
-            const iconEl = cardEl.querySelector('.level-icon');
-            if (!contentEl || !iconEl) return;
-
-            // 切换内容显示
-            contentEl.classList.toggle('show');
-
-            // 切换图标动画
-            if (contentEl.classList.contains('show')) {
-                iconEl.classList.replace('fa-chevron-right', 'fa-chevron-down');
-                iconEl.classList.replace('text-neutral-400', 'text-primary');
-            } else {
-                iconEl.classList.replace('fa-chevron-down', 'fa-chevron-right');
-                iconEl.classList.replace('text-primary', 'text-neutral-400');
-            }
-        }
-
-        /**
-         * 递归搜索数据
-         */
-        function searchData(obj, query, results, path, level, parentCategory) {
-            // 终止条件：层级超限或路径排除
-            if (level > CONFIG.maxDisplayLevel) return;
-            if (isExcludedPath(path)) return;
-            if (obj === null || typeof obj !== 'object') return;
-
+        // 搜索功能 - 限制只能搜索到2层内容
+        function searchData(obj, query, results, path, level) {
             try {
-                // 记录1级分类（当层级为1时）
-                let currentParentCategory = parentCategory;
-                if (level === 1) {
-                    currentParentCategory = path[path.length - 1];
-                }
+                if (level > CONFIG.maxDisplayLevel || isExcludedPath(path) || obj === null || typeof obj !== 'object') return;
 
-                // 从第2层开始处理（忽略第一层）
-                if (level > 1) {
+                if (level === CONFIG.maxDisplayLevel) {
                     const currentName = path[path.length - 1];
                     const nameLower = currentName.toLowerCase();
                     const queryLower = query.toLowerCase();
 
-                    // 计算匹配度（10分制）
-                    let matchScore = 0;
-                    let nameMatched = false;
-                    let contentMatched = false;
+                    let matchScore = 0, nameMatched = false, contentMatched = false;
 
-                    // 1. 名称匹配（权重更高）
                     if (nameLower.includes(queryLower)) {
                         nameMatched = true;
-                        // 完全匹配：10分，部分匹配：5-8分（根据匹配位置）
-                        if (nameLower === queryLower) {
-                            matchScore = 10;
-                        } else if (nameLower.startsWith(queryLower)) {
-                            matchScore = 8;
-                        } else {
-                            matchScore = 5;
-                        }
+                        matchScore = nameLower === queryLower ? 10 : nameLower.startsWith(queryLower) ? 8 : 5;
                     }
 
-                    // 2. 内容匹配（权重较低）
                     if (!nameMatched && typeof obj === 'object') {
                         const contentStr = JSON.stringify(obj).toLowerCase();
                         if (contentStr.includes(queryLower)) {
                             contentMatched = true;
-                            matchScore = 3; // 内容匹配固定3分
+                            matchScore = 3;
                         }
                     }
 
-                    // 3. 层级加权（层级越低加分越多）
-                    matchScore += (CONFIG.maxDisplayLevel - level + 1) * 0.5;
-
-                    // 匹配成功：添加到结果，包含1级分类信息
                     if (nameMatched || contentMatched) {
+                        const fullPath = path.join(' > ');
+                        const content = formatSearchResultContent(obj, query, path);
+                        
                         results.push({
+                            id: Date.now() + Math.random(),
                             name: currentName,
-                            highlightedName: highlightMatch(currentName, query),
-                            content: formatContent(obj, query),
+                            highlightedName: highlightMatch(currentName, query, path),
+                            content: content,
+                            path: fullPath,
+                            pathParts: [...path],
+                            highlightedPath: path.map((p, index) => {
+                                return highlightMatch(p, query, path.slice(0, index + 1));
+                            }).join(' > '),
                             level: level,
-                            path: path.join(' > '),
-                            highlightedPath: path.map(p => highlightMatch(p, query)).join(' > '),
                             fullData: obj,
                             matchScore: matchScore,
-                            matchType: nameMatched ? 'name' : 'content',
-                            parentCategory: currentParentCategory, // 1级分类
-                            highlightedParentCategory: highlightMatch(currentParentCategory, query)
+                            matchType: nameMatched ? 'name' : 'content'
                         });
                     }
                 }
 
-                // 递归处理子节点
-                if (Array.isArray(obj)) {
-                    obj.forEach((item, index) => {
-                        // 数组元素路径：添加"[索引]"标识
-                        const arrayItemName = `${path.length > 0 ? path[path.length - 1] : 'root'}[${index}]`;
-                        searchData(item, query, results, [...path, arrayItemName], level + 1, currentParentCategory);
-                    });
-                } else if (typeof obj === 'object' && obj !== null) {
-                    for (const key in obj) {
-                        if (obj.hasOwnProperty(key)) {
-                            searchData(obj[key], query, results, [...path, key], level + 1, currentParentCategory);
+                if (level < CONFIG.maxDisplayLevel) {
+                    if (Array.isArray(obj)) {
+                        obj.forEach((item, index) => {
+                            const arrayItemName = `${path.length > 0 ? path[path.length - 1] : 'root'}[${index}]`;
+                            searchData(item, query, results, [...path, arrayItemName], level + 1);
+                        });
+                    } else if (typeof obj === 'object' && obj !== null) {
+                        for (const key in obj) {
+                            if (obj.hasOwnProperty(key)) {
+                                searchData(obj[key], query, results, [...path, key], level + 1);
+                            }
                         }
                     }
                 }
             } catch (err) {
-                console.error(`递归搜索错误（路径：${path.join('/')}）:`, err);
+                console.error(`搜索错误（路径：${path.join('/')}）:`, err);
             }
         }
 
-        /**
-         * 生成子层级HTML
-         */
-        function generateChildLevels(data, parentLevel, query) {
-            const currentLevel = parentLevel + 1;
-            if (currentLevel > CONFIG.maxDisplayLevel) {
-                return `<div class="${getLevelIndentClass(1)} content-text italic text-neutral-500">已达最大展示层级（${CONFIG.maxDisplayLevel}级）</div>`;
-            }
-
-            // 非对象类型：直接显示
-            if (!isExpandable(data)) {
-                const highlightedValue = highlightMatch(String(data), query);
-                return `<div class="${getLevelIndentClass(1)} content-text">${highlightedValue}</div>`;
-            }
-
-            // 对象/数组类型：递归生成
-            let html = `<div class="border-t border-neutral-100 pt-3 mt-1">`;
-            
-            // 处理数组
-            if (Array.isArray(data)) {
-                data.forEach((item, index) => {
-                    const itemName = `[${index}]`;
-                    const isItemExpandable = isExpandable(item);
-                    
-                    html += `
-                        <div class="mb-2 last:mb-0">
-                            <div class="flex items-center gap-2 ${getLevelIndentClass(1)} font-medium text-neutral-700 text-sm">
-                                ${highlightMatch(itemName, query)}
-                                ${isItemExpandable ? '<i class="fa fa-angle-right text-neutral-400 text-xs"></i>' : ''}
-                            </div>
-                            ${isItemExpandable 
-                                ? generateChildLevels(item, currentLevel, query) 
-                                : `<div class="${getLevelIndentClass(2)} content-text mt-1">${highlightMatch(String(item), query)}</div>`
-                            }
-                        </div>
-                    `;
-                });
-            } 
-            // 处理对象
-            else {
-                const keys = Object.keys(data);
-                keys.forEach(key => {
-                    const item = data[key];
-                    const isItemExpandable = isExpandable(item);
-                    
-                    html += `
-                        <div class="mb-2 last:mb-0">
-                            <div class="flex items-center gap-2 ${getLevelIndentClass(1)} font-medium text-neutral-700 text-sm">
-                                ${highlightMatch(key, query)}
-                                ${isItemExpandable ? '<i class="fa fa-angle-right text-neutral-400 text-xs"></i>' : ''}
-                            </div>
-                            ${isItemExpandable 
-                                ? generateChildLevels(item, currentLevel, query) 
-                                : `<div class="${getLevelIndentClass(2)} content-text mt-1">${highlightMatch(String(item), query)}</div>`
-                            }
-                        </div>
-                    `;
-                });
-            }
-            
-            html += '</div>';
-            return html;
-        }
-
-        /**
-         * 判断是否为可展开的对象
-         */
-        function isExpandable(value) {
-            return value !== null && typeof value === 'object' && (
-                (Array.isArray(value) && value.length > 0) ||
-                (!Array.isArray(value) && Object.keys(value).length > 0)
-            );
-        }
-
-        /**
-         * 获取层级对应的缩进类
-         */
-        function getLevelIndentClass(relativeLevel) {
-            const clampedLevel = Math.min(relativeLevel, 5);
-            return `level-indent-${clampedLevel}`;
-        }
-
-        /**
-         * 显示搜索结果
-         */
-        function showResults(results, query) {
-            DOM.resultsList.innerHTML = '';
-
-            if (results.length > 0) {
-                // 按匹配度排序（降序）
-                results.sort((a, b) => b.matchScore - a.matchScore);
-                
-                DOM.resultCount.textContent = results.length;
-                DOM.matchTip.classList.remove('hidden');
-
-                // 生成结果卡片
-                results.forEach((item, index) => {
-                    const isExpandableCard = isExpandable(item.fullData) && item.level < CONFIG.maxDisplayLevel;
-                    
-                    // 计算动画延迟
-                    const delayRatio = Math.min(index / results.length, 1);
-                    const animationDelay = Math.floor(delayRatio * CONFIG.maxResultAnimationDelay);
-
-                    const card = document.createElement('div');
-                    card.className = 'result-card fade-in';
-                    card.style.animationDelay = `${animationDelay}ms`;
-
-                    // 卡片HTML，添加1级分类标签
-                    card.innerHTML = `
-                        <!-- 卡片标题 -->
-                        <div class="card-header">
-                            <div class="card-title">
-                                <span class="level-badge bg-level-${item.level}">${item.level}层</span>
-                                <span class="title-text text-base">${item.highlightedName}</span>
-                                ${item.parentCategory ? 
-                                    `<span class="category-badge">${item.highlightedParentCategory}</span>` : ''
-                                }
-                                ${item.matchType === 'name' ? 
-                                    '<span class="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded ml-2">标题匹配</span>' : 
-                                    '<span class="text-xs bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded ml-2">内容匹配</span>'
-                                }
-                            </div>
-                            ${isExpandableCard ? 
-                                '<i class="level-icon fa fa-chevron-right"></i>' : 
-                                '<i class="level-icon opacity-0"></i>'
-                            }
-                        </div>
-                        
-                        <!-- 路径信息（高亮关键词） -->
-                        <div class="text-xs text-neutral-500 mt-2 mb-3 line-clamp-1">
-                            ${item.highlightedPath}
-                        </div>
-                        
-                        <!-- 内容预览 -->
-                        <div class="content-text mb-2">${item.content}</div>
-                        
-                        <!-- 可展开子层级 -->
-                        ${isExpandableCard ? `
-                            <div class="expandable-content">
-                                ${generateChildLevels(item.fullData, item.level, query)}
-                            </div>
-                        ` : ''}
-                    `;
-
-                    // 绑定展开/折叠事件到整个卡片
-                    if (isExpandableCard) {
-                        card.addEventListener('click', () => toggleCardExpand(card));
-                    }
-
-                    DOM.resultsList.appendChild(card);
-                });
-
-                DOM.resultsContainer.classList.remove('hidden');
-                DOM.noResult.classList.add('hidden');
-            } else {
-                DOM.resultsContainer.classList.add('hidden');
-                DOM.noResult.classList.remove('hidden');
-                DOM.matchTip.classList.add('hidden');
-            }
-        }
-
-        /**
-         * 执行搜索
-         */
-        function executeSearch(query) {
-            // 状态检查
-            if (STATE.isSearching) return;
-            if (!STATE.data) {
-                showError('数据源尚未加载完成，请稍候');
-                return;
-            }
-
-            query = query.trim();
-            if (!query) {
-                // 空关键词：重置界面
-                DOM.resultsContainer.classList.add('hidden');
-                DOM.noResult.classList.add('hidden');
-                DOM.matchTip.classList.add('hidden');
-                DOM.clearBtn.classList.add('hidden');
-                STATE.lastQuery = '';
-                return;
-            }
-
+        // 视图切换
+        function switchToSearchView() {
+            console.log('切换到搜索视图');
             try {
-                // 更新状态
+                document.getElementById('appBody').className = 'search-engine-bg';
+                document.getElementById('searchLayout').classList.remove('hidden');
+                document.getElementById('zhihuLayout').classList.add('hidden');
+                
+                STATE.currentView = 'search';
+                STATE.currentItem = null;
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('切换视图时发生错误:', error);
+                try {
+                    window.location.hash = '#search';
+                    setTimeout(() => {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 100);
+                } catch (backupError) {
+                    console.error('备用方法也失败:', backupError);
+                }
+            }
+        }
+
+        function switchToZhihuView(item, scrollToTop = true) {
+            console.log('切换到知乎视图:', item.name);
+            STATE.currentView = 'zhihu';
+            STATE.currentItem = item;
+            
+            document.getElementById('appBody').className = 'zhihu-bg';
+            document.getElementById('searchLayout').classList.add('hidden');
+            document.getElementById('zhihuLayout').classList.remove('hidden');
+            
+            renderZhihuDetail(item);
+            renderRelatedContent(item);
+            
+            // 显示评论区
+            if (DOM.commentSection) {
+                DOM.commentSection.classList.remove('hidden');
+            }
+            
+            // 渲染评论
+            renderComments(item);
+            
+            if (scrollToTop) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // 渲染搜索结果
+        function renderSearchResults(results, query) {
+            try {
+                console.log('渲染搜索结果，共', results.length, '条');
+                if (!DOM.searchResults) return;
+                
+                DOM.searchResults.innerHTML = '';
+                
+                if (results.length === 0) {
+                    if (DOM.noResult) DOM.noResult.classList.remove('hidden');
+                    return;
+                }
+
+                results.forEach((item, index) => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'result-item fade-in';
+                    resultItem.style.animationDelay = `${index * 50}ms`;
+                    
+                    const rootTag = getRootTag(item.pathParts);
+                    const itemData = getItemInteractionData(item);
+                    const isLiked = STATE.likedItems.has(item.path);
+                    
+                    resultItem.innerHTML = `
+                        <div class="space-y-2">
+                            <div class="flex items-start justify-between">
+                                <h3 class="text-lg font-semibold text-primary">${rootTag}${item.highlightedName}</h3>
+                                <span class="text-xs text-gray-400">${item.level}层</span>
+                            </div>
+                            <p class="text-gray-700 text-sm leading-relaxed">${item.content}</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-4 text-xs text-gray-400">
+                                    <span>${item.matchType === 'name' ? '标题匹配' : '内容匹配'}</span>
+                                    <span>匹配度: ${item.matchScore.toFixed(1)}</span>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="like-button ${isLiked ? 'liked' : ''}" data-path="${item.path}" onclick="event.stopPropagation(); toggleLike({path: '${item.path}', pathParts: ${JSON.stringify(item.pathParts)}})">
+                                        <i class="fa ${isLiked ? 'fa-heart' : 'fa-heart-o'}"></i>
+                                        <span class="like-count">${itemData.likesCount}</span>
+                                    </div>
+                                    <div class="zhihu-action" onclick="event.stopPropagation(); switchToZhihuView(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                                        <i class="fa fa-comment-o"></i>
+                                        <span>${itemData.commentsCount}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    resultItem.onclick = () => switchToZhihuView(item);
+                    
+                    DOM.searchResults.appendChild(resultItem);
+                });
+            } catch (err) {
+                console.error('渲染搜索结果失败:', err);
+                showError('渲染搜索结果失败');
+            }
+        }
+
+        // 渲染知乎格式详情
+        function renderZhihuDetail(item) {
+            try {
+                console.log('渲染知乎详情:', item.name);
+                if (!DOM.detailContent) return;
+                
+                const humanReadableData = renderDataAsHumanReadable(item.fullData, STATE.lastQuery, item.pathParts);
+                const rootTag = getRootTag(item.pathParts);
+                const itemData = getItemInteractionData(item);
+                const isLiked = STATE.likedItems.has(item.path);
+                
+                DOM.detailContent.innerHTML = `
+                    <div class="space-y-6">
+                        <!-- 标题和标签 -->
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h2 class="text-2xl font-bold text-gray-800">${item.highlightedName}</h2>
+                            ${rootTag}
+                        </div>
+                        
+                        <!-- 作者信息 -->
+                        <div class="zhihu-author">
+                            <div class="flex items-center gap-2">
+                                <div class="w-10 h-10 rounded-full bg-zhihu-blue flex items-center justify-center text-white font-semibold">
+                                    ${item.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-800">狐拾一之异界神域</div>
+                                    <div class="text-xs text-zhihu-gray">发布于 ${new Date().toLocaleDateString()}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 重点突出的数据详情部分 -->
+                        <div class="data-detail">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-800 flex items-center">
+                                <i class="fa fa-database text-zhihu-blue mr-2"></i>
+                                数据详情
+                            </h3>
+                            <div class="text-sm leading-relaxed">
+                                ${humanReadableData}
+                            </div>
+                        </div>
+                        
+                        <!-- 操作区域 -->
+                        <div class="zhihu-footer">
+                            <div class="flex gap-6">
+                                <div class="zhihu-action" onclick="switchToSearchView()">
+                                    <i class="fa fa-arrow-left"></i>
+                                    <span>返回</span>
+                                </div>
+                                <div id="detailLikeBtn" class="like-button ${isLiked ? 'liked' : ''}" onclick="toggleLike(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                                    <i class="fa ${isLiked ? 'fa-heart' : 'fa-heart-o'}"></i>
+                                    <span class="like-count">${itemData.likesCount}</span>
+                                </div>
+                                <div class="zhihu-action">
+                                    <i class="fa fa-share"></i>
+                                    <span>分享</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                console.error('渲染知乎详情失败:', err);
+                if (DOM.detailContent) {
+                    DOM.detailContent.innerHTML = '<div class="text-red-500 text-center py-8">数据渲染失败</div>';
+                }
+            }
+        }
+
+        // 渲染相关推荐
+        function renderRelatedContent(currentItem) {
+            try {
+                console.log('渲染相关推荐');
+                if (!DOM.relatedList) return;
+                
+                DOM.relatedList.innerHTML = '';
+                
+                const relatedItems = STATE.searchResults
+                    .filter(item => item.id !== currentItem.id)
+                    .slice(0, 5);
+
+                relatedItems.forEach(item => {
+                    const relatedItem = document.createElement('div');
+                    relatedItem.className = 'zhihu-card p-4 cursor-pointer hover:bg-gray-50 transition-colors';
+                    
+                    const rootTag = getRootTag(item.pathParts);
+                    const itemData = getItemInteractionData(item);
+                    
+                    relatedItem.innerHTML = `
+                        <div class="space-y-2">
+                            <h4 class="font-medium text-gray-800 line-clamp-2">${rootTag}${item.highlightedName}</h4>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-zhihu-gray">${item.level}层 · ${item.matchType === 'name' ? '标题匹配' : '内容匹配'}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-zhihu-gray">
+                                        <i class="fa fa-heart-o text-xs"></i> ${itemData.likesCount}
+                                    </span>
+                                    <span class="text-zhihu-gray">
+                                        <i class="fa fa-comment-o text-xs"></i> ${itemData.commentsCount}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    relatedItem.onclick = () => switchToZhihuView(item, true);
+                    
+                    DOM.relatedList.appendChild(relatedItem);
+                });
+            } catch (err) {
+                console.error('渲染相关推荐失败:', err);
+            }
+        }
+
+        // 执行搜索
+        async function executeSearch() {
+            try {
+                console.log('执行搜索...');
+                if (STATE.isSearching) {
+                    console.log('正在搜索中，忽略重复请求');
+                    return;
+                }
+                if (!STATE.data) {
+                    showError('数据源尚未加载完成，请稍候');
+                    return;
+                }
+
+                const query = document.getElementById('searchInput').value.trim();
+                if (!query) {
+                    hideAllMessages();
+                    if (DOM.clearBtn) DOM.clearBtn.classList.add('hidden');
+                    STATE.lastQuery = '';
+                    return;
+                }
+
+                if (query === STATE.lastQuery) {
+                    showError('已搜索过此关键词');
+                    return;
+                }
+
                 STATE.isSearching = true;
                 STATE.lastQuery = query;
-                DOM.searchBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i><span>搜索中</span>';
-                DOM.searchBtn.classList.add('searching');
-                DOM.clearBtn.classList.remove('hidden');
+                hideAllMessages();
+                
+                if (DOM.searchStatus && DOM.searchStatusText) {
+                    DOM.searchStatus.classList.remove('hidden');
+                    DOM.searchStatusText.textContent = '正在搜索...';
+                }
 
-                // 重置结果区域
-                DOM.resultsList.innerHTML = '';
-                DOM.resultsContainer.classList.add('hidden');
-                DOM.noResult.classList.add('hidden');
-
-                // 执行搜索
+                const startTime = Date.now();
                 const results = [];
-                searchData(STATE.data, query, results, [], 0, null);
+                searchData(STATE.data, query, results, [], 0);
+                const searchTime = (Date.now() - startTime) / 1000;
 
-                // 显示搜索结果
-                setTimeout(() => {
-                    showResults(results, query);
-                    // 恢复状态
-                    STATE.isSearching = false;
-                    DOM.searchBtn.innerHTML = '<i class="fa fa-search"></i><span>搜索</span>';
-                    DOM.searchBtn.classList.remove('searching');
-                }, 150);
+                results.sort((a, b) => b.matchScore - a.matchScore);
+                STATE.searchResults = results;
+
+                if (DOM.resultCount && DOM.searchTime && DOM.resultStats) {
+                    DOM.resultCount.textContent = results.length;
+                    DOM.searchTime.textContent = searchTime.toFixed(2);
+                    DOM.resultStats.classList.remove('hidden');
+                }
+                
+                if (DOM.searchResults) {
+                    DOM.searchResults.classList.remove('hidden');
+                }
+                
+                renderSearchResults(results, query);
+
+                if (results.length === 0 && DOM.noResult) {
+                    DOM.noResult.classList.remove('hidden');
+                }
 
             } catch (err) {
-                console.error('搜索执行错误:', err);
-                showError(`搜索失败：${err.message}`, 6000);
-                // 恢复状态
+                console.error('搜索失败:', err);
+                showError(`搜索失败：${err.message}`);
+            } finally {
                 STATE.isSearching = false;
-                DOM.searchBtn.innerHTML = '<i class="fa fa-search"></i><span>搜索</span>';
-                DOM.searchBtn.classList.remove('searching');
+                if (DOM.searchStatus) {
+                    DOM.searchStatus.classList.add('hidden');
+                }
+                if (DOM.clearBtn) {
+                    DOM.clearBtn.classList.remove('hidden');
+                }
             }
         }
 
-        /**
-         * 初始化事件监听
-         */
-        function initEventListeners() {
-            // 搜索按钮点击
-            DOM.searchBtn.addEventListener('click', () => {
-                executeSearch(DOM.searchInput.value);
-                DOM.searchInput.blur();
-            });
-
-            // 清除按钮点击
-            DOM.clearBtn.addEventListener('click', () => {
-                DOM.searchInput.value = '';
-                DOM.clearBtn.classList.add('hidden');
-                executeSearch(''); // 执行空搜索以重置界面
-            });
-
-            // 输入框回车
-            DOM.searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    executeSearch(DOM.searchInput.value);
-                    DOM.searchInput.blur();
-                }
-            });
-
-            // 输入框内容变化（控制清除按钮显示）
-            DOM.searchInput.addEventListener('input', () => {
-                const value = DOM.searchInput.value.trim();
-                if (value) {
-                    DOM.clearBtn.classList.remove('hidden');
-                } else {
-                    DOM.clearBtn.classList.add('hidden');
-                }
-            });
-
-            // 输入框聚焦时隐藏错误提示
-            DOM.searchInput.addEventListener('focus', () => {
-                DOM.errorMessage.classList.add('hidden');
-            });
+        // 清除搜索
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearBtn').classList.add('hidden');
+            hideAllMessages();
+            STATE.lastQuery = '';
         }
 
-        /**
-         * 初始化应用
-         */
-        function init() {
-            // 初始状态
-            DOM.searchBtn.disabled = true;
-            DOM.searchBtn.classList.add('searching');
-            DOM.clearBtn.classList.add('hidden');
+        // 初始化事件
+        function initEvents() {
+            console.log('初始化事件...');
+            
+            // 搜索框回车事件
+            if (DOM.searchInput) {
+                DOM.searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        executeSearch();
+                        DOM.searchInput.blur();
+                    }
+                });
+            }
 
-            // 初始化事件和加载数据
-            initEventListeners();
-            loadData();
+            // 输入框变化
+            if (DOM.searchInput && DOM.clearBtn) {
+                DOM.searchInput.addEventListener('input', function() {
+                    DOM.clearBtn.classList.toggle('hidden', !DOM.searchInput.value.trim());
+                });
+            }
+
+            // 评论输入框回车事件
+            if (DOM.commentInput) {
+                DOM.commentInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                        submitComment();
+                    }
+                });
+            }
+
+            // 窗口关闭前尝试同步所有数据
+            window.addEventListener('beforeunload', async function(e) {
+                if (STATE.syncQueue.length > 0 || STATE.syncInProgress) {
+                    e.preventDefault();
+                    e.returnValue = '正在同步数据，确定要离开吗？';
+                    return e.returnValue;
+                }
+            });
+
+            console.log('事件监听器初始化完成');
         }
 
         // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('页面DOM加载完成');
+            
+            initEvents();
+            loadData();
+            
+        });
+
+        // 全局函数
+        window.switchToSearchView = switchToSearchView;
+        window.executeSearch = executeSearch;
+        window.clearSearch = clearSearch;
+        window.toggleLike = toggleLike;
+        window.submitComment = submitComment;
+
+        console.log('JavaScript代码加载完成');
     </script>
 </body>
 </html>
-
-
