@@ -85,7 +85,7 @@
           ]
         },
         "人物 > 马里奥": {
-          "likesCount": 0,
+          "likesCount": 1,
           "commentsCount": 0,
           "commentsList": []
         },
@@ -231,6 +231,6 @@
       }
     }
   },
-  "lastSync": 1760448120873,
+  "lastSync": 1760448122137,
   "schemaVersion": 1
 }
