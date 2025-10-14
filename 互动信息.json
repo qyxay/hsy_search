@@ -62,13 +62,19 @@
         },
         "人物 > 狐拾一": {
           "likesCount": 1,
-          "commentsCount": 1,
+          "commentsCount": 2,
           "commentsList": [
             {
               "id": 1760445997042,
               "content": "1+1",
               "author": "用户",
               "time": "2025-10-14T12:46:37.042Z"
+            },
+            {
+              "id": 1760446003802,
+              "content": "2？",
+              "author": "用户",
+              "time": "2025-10-14T12:46:43.802Z"
             }
           ]
         },
@@ -206,6 +212,6 @@
       }
     }
   },
-  "lastSync": 1760445997049,
+  "lastSync": 1760446003802,
   "schemaVersion": 1
 }
