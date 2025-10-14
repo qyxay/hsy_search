@@ -61,7 +61,7 @@
           ]
         },
         "人物 > 狐拾一": {
-          "likesCount": 0,
+          "likesCount": 1,
           "commentsCount": 0,
           "commentsList": []
         },
@@ -199,6 +199,6 @@
       }
     }
   },
-  "lastSync": 1759308253209,
+  "lastSync": 1760445990514,
   "schemaVersion": 1
 }
