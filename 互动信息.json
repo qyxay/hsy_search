@@ -89,7 +89,7 @@
           "commentsList": []
         },
         "人物 > 涂月": {
-          "likesCount": 0,
+          "likesCount": 1,
           "commentsCount": 0,
           "commentsList": []
         },
@@ -225,6 +225,6 @@
       }
     }
   },
-  "lastSync": 1760448072994,
+  "lastSync": 1760448075763,
   "schemaVersion": 1
 }
