@@ -62,8 +62,15 @@
         },
         "人物 > 狐拾一": {
           "likesCount": 1,
-          "commentsCount": 0,
-          "commentsList": []
+          "commentsCount": 1,
+          "commentsList": [
+            {
+              "id": 1760445997042,
+              "content": "1+1",
+              "author": "用户",
+              "time": "2025-10-14T12:46:37.042Z"
+            }
+          ]
         },
         "人物 > 马里奥": {
           "likesCount": 0,
@@ -199,6 +206,6 @@
       }
     }
   },
-  "lastSync": 1760445990514,
+  "lastSync": 1760445997049,
   "schemaVersion": 1
 }
