@@ -1,5 +1,21 @@
 {
-  "users": {},
-  "lastSync": 1760448839755,
+  "users": {
+    "testuser": {
+      "password": "53ab39b7",
+      "createdAt": 1760449011624,
+      "lastLogin": 1760449011624,
+      "profile": {
+        "nickname": "testuser",
+        "avatar": "",
+        "bio": ""
+      },
+      "stats": {
+        "totalLikes": 0,
+        "totalComments": 0,
+        "searchCount": 0
+      }
+    }
+  },
+  "lastSync": 1760449011624,
   "schemaVersion": 1
 }
