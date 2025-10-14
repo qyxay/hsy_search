@@ -192,8 +192,15 @@
         },
         "杂七杂八 > 命运骰子": {
           "likesCount": 0,
-          "commentsCount": 0,
-          "commentsList": []
+          "commentsCount": 1,
+          "commentsList": [
+            {
+              "id": 1760447640211,
+              "content": "来啦！",
+              "author": "用户",
+              "time": "2025-10-14T13:14:00.211Z"
+            }
+          ]
         }
       }
     },
@@ -212,6 +219,6 @@
       }
     }
   },
-  "lastSync": 1760446003802,
+  "lastSync": 1760447640213,
   "schemaVersion": 1
 }
