@@ -118,7 +118,7 @@
           "commentsList": []
         },
         "建筑物 > 谷雨楼": {
-          "likesCount": 0,
+          "likesCount": 1,
           "commentsCount": 0,
           "commentsList": []
         }
@@ -225,6 +225,6 @@
       }
     }
   },
-  "lastSync": 1760447646935,
+  "lastSync": 1760447653308,
   "schemaVersion": 1
 }
