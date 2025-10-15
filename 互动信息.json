@@ -24,12 +24,14 @@
               "author": "用户",
               "time": "2025-10-01T06:19:50.875Z"
             }
-          ]
+          ],
+          "likes": {}
         },
         "人物 > 狐拾一 > 身份": {
           "likesCount": 1,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "人物 > 狐拾一 > 介绍": {
           "likesCount": 0,
@@ -41,12 +43,14 @@
               "author": "用户",
               "time": "2025-10-01T06:19:31.078Z"
             }
-          ]
+          ],
+          "likes": {}
         },
         "人物 > 马里奥 > 介绍": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "人物 > 涂月 > 介绍": {
           "likesCount": 0,
@@ -58,10 +62,11 @@
               "author": "用户",
               "time": "2025-10-01T06:19:12.169Z"
             }
-          ]
+          ],
+          "likes": {}
         },
         "人物 > 狐拾一": {
-          "likesCount": 1,
+          "likesCount": 2,
           "commentsCount": 3,
           "commentsList": [
             {
@@ -82,32 +87,40 @@
               "author": "用户",
               "time": "2025-10-14T13:21:30.122Z"
             }
-          ]
+          ],
+          "likes": {
+            "root11": true
+          }
         },
         "人物 > 马里奥": {
           "likesCount": 1,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "人物 > 马里奥 > 句摘 > 内容": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "人物 > 涂月": {
           "likesCount": 1,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "人物 > 马里奥 > 句摘": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "人物 > 涂月 > 身份": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         }
       }
     },
@@ -116,17 +129,20 @@
         "建筑物": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "建筑物 > 谷雨楼 > 来源": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "建筑物 > 谷雨楼": {
           "likesCount": 1,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         }
       }
     },
@@ -135,22 +151,26 @@
         "地方": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "地方 > 迷雾神域 > 统治者": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "地方 > 迷雾神域": {
           "likesCount": 1,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "地方 > 神域": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         }
       }
     },
@@ -159,42 +179,50 @@
         "杂七杂八": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "杂七杂八 > 烂话 > 介绍": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "杂七杂八 > 夔王印 > 别名": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "杂七杂八 > 夔王印 > 来源": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "杂七杂八 > 命运骰子 > 介绍": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "杂七杂八 > 命运骰子 > 来源": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "杂七杂八 > 烂话": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "杂七杂八 > 夔王印": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "杂七杂八 > 命运骰子": {
           "likesCount": 0,
@@ -212,7 +240,8 @@
               "author": "用户",
               "time": "2025-10-14T13:14:06.935Z"
             }
-          ]
+          ],
+          "likes": {}
         }
       }
     },
@@ -221,16 +250,18 @@
         "神域那些事": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         },
         "神域那些事 > 尘夔惊天一战": {
           "likesCount": 0,
           "commentsCount": 0,
-          "commentsList": []
+          "commentsList": [],
+          "likes": {}
         }
       }
     }
   },
-  "lastSync": 1760448122137,
+  "lastSync": 1760542656030,
   "schemaVersion": 1
 }
