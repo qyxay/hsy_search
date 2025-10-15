@@ -46,9 +46,14 @@
         "totalComments": 0,
         "searchCount": 1
       }
+    },
+    "root2": {
+      "password": "hsyhsy1126",
+      "registeredAt": 1760532777794,
+      "lastLogin": null
     }
   },
   "lastSync": 1760532674659,
   "schemaVersion": 1,
-  "lastModified": 1760532748357
+  "lastModified": 1760532777794
 }
