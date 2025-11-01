@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>狐拾一搜索引擎</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
         tailwind.config = { theme: { extend: {
             colors: {
@@ -99,7 +99,7 @@
         <!-- 搜索引擎标题 -->
         <div class="text-center mb-8">
             <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold text-primary mb-2">狐拾一搜索</h1>
-            <p class="text-secondary text-sm mb-4">智能数据检索引擎</p>
+            <p class="text-secondary text-sm mb-4">狐拾一之异界神域</p>
         </div>
 
         <!-- 搜索框 -->
@@ -133,7 +133,7 @@
 
         <!-- 搜索结果统计 -->
         <div id="resultStats" class="mb-6 text-sm text-gray-500 hidden">
-            找到 <span id="resultCount" class="text-primary font-semibold">0</span> 条结果，用时 <span id="searchTime" class="font-semibold">0</span> 秒
+            找到 <span id="resultCount" class="text-primary font-semibold">0</span> 条结果
         </div>
 
         <!-- 搜索结果列表 -->
@@ -710,11 +710,9 @@
         }
 
         function switchToZhihuView(item, scrollToTop = true) {
-            console.log('切换到百度百科视图:', item.name);
+            console.log('切换到视图:', item.name);
             STATE.currentView = 'zhihu';
             STATE.currentItem = item;
-            // 保留展开状态，不重置清空
-            // STATE.expandedNodes.clear();
             
             document.getElementById('appBody').className = 'zhihu-bg';
             document.getElementById('searchLayout').classList.add('hidden');
@@ -774,7 +772,49 @@
             }
         }
 
-        // 渲染百度百科格式详情 - 修改版：仅在数据类型为"表格"时显示基本信息栏
+        // 获取相关条目HTML（从“关于”字段提取，无则返回空）
+        function getRelatedItemsHtml(currentItem, query) {
+            try {
+                // 1. 从当前数据的“关于”字段获取内容，判断是否存在且有效
+                const aboutData = currentItem?.fullData?.关于;
+                if (!aboutData) return ''; // 无“关于”字段，返回空
+                
+                // 2. 处理“关于”字段的不同格式（数组/字符串）
+                let relatedList = [];
+                if (Array.isArray(aboutData)) {
+                    // 格式1：数组（如 ["条目1", "条目2"]）
+                    relatedList = aboutData.filter(item => typeof item === 'string' && item.trim());
+                } else if (typeof aboutData === 'string') {
+                    // 格式2：字符串（如 “相关：条目1, 条目2”），简单分割为数组
+                    relatedList = aboutData.replace(/^相关：|相关:/, '').split(',').map(item => item.trim()).filter(item => item);
+                }
+                
+                // 3. 无有效相关内容，返回空
+                if (relatedList.length === 0) return '';
+                
+                // 4. 生成带高亮的相关条目HTML
+                return relatedList.map(item => {
+                    const highlightedItem = highlightMatch(item, query); // 保留关键词高亮
+                    return `
+                        <span class="baike-related-item" onclick="searchByRelatedItem('${escape(item)}')">
+                            ${highlightedItem}
+                        </span>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('处理“关于”字段失败:', err);
+                return '';
+            }
+        }
+
+        // 点击相关条目触发搜索
+        function searchByRelatedItem(keyword) {
+            DOM.searchInput.value = keyword;
+            executeSearch();
+            switchToSearchView(); // 跳回搜索页展示结果
+        }
+
+        // 渲染百度百科格式详情
         function renderZhihuDetail(item) {
             try {
                 console.log('渲染百度百科详情:', item.name);
@@ -782,20 +822,21 @@
                 
                 const humanReadableData = renderDataAsHumanReadable(item.fullData, STATE.lastQuery, item.pathParts);
                 const rootTag = getRootTag(item.pathParts);
+                // 获取“关于”字段的相关内容
+                const relatedHtml = getRelatedItemsHtml(item, STATE.lastQuery);
                 
-                // 检查数据是否为表格类型 - 这里我们定义表格类型为包含"表格"字段的对象
+                // 检查数据是否为表格类型
                 let infoTableHtml = '';
                 const isTableType = typeof item.fullData === 'object' && 
                                    item.fullData !== null && 
                                    !Array.isArray(item.fullData) && 
                                    (item.fullData.表格 !== undefined || item.fullData.table !== undefined);
                 
-                // 只有数据类型为表格时才显示基本信息栏
                 if (isTableType) {
                     const entries = Object.entries(item.fullData);
                     if (entries.length > 0) {
                         infoTableHtml = '<table class="baike-info-table">';
-                        entries.slice(0, 6).forEach(([key, value]) => { // 只显示前6个属性
+                        entries.slice(0, 6).forEach(([key, value]) => {
                             const highlightedKey = highlightMatch(key, STATE.lastQuery);
                             const valueStr = typeof value === 'object' ? JSON.stringify(value) : String(value);
                             const highlightedValue = highlightMatch(valueStr.length > 50 ? valueStr.substring(0, 50) + '...' : valueStr, STATE.lastQuery);
@@ -841,7 +882,7 @@
                             </div>
                         </div>
                         
-                        <!-- 百度百科式基本信息栏 - 仅在数据类型为表格时显示 -->
+                        <!-- 百度百科式基本信息栏 -->
                         ${infoTableHtml}
                         
                         <!-- 概述部分 -->
@@ -849,20 +890,14 @@
                             <h3 class="baike-section-title">概述</h3>
                             <p class="text-gray-700 leading-relaxed">
                                 ${(() => {
-                                    // 尝试从对象中提取"介绍"字段
                                     let introText = "关于" + item.highlightedName + "的基本介绍，包含核心特征和重要信息。";
                                     
                                     if (typeof item.fullData === 'object' && item.fullData !== null) {
-                                        // 检查是否有"介绍"字段
                                         if (item.fullData.介绍 !== undefined && typeof item.fullData.介绍 === 'string') {
                                             introText = highlightMatch(item.fullData.介绍, STATE.lastQuery);
-                                        } 
-                                        // 检查是否有"description"字段（英文版本）
-                                        else if (item.fullData.description !== undefined && typeof item.fullData.description === 'string') {
+                                        } else if (item.fullData.description !== undefined && typeof item.fullData.description === 'string') {
                                             introText = highlightMatch(item.fullData.description, STATE.lastQuery);
-                                        }
-                                        // 如果是字符串类型的对象值
-                                        else if (typeof item.fullData === 'string') {
+                                        } else if (typeof item.fullData === 'string') {
                                             introText = highlightMatch(item.fullData.substring(0, 150), STATE.lastQuery);
                                             if (item.fullData.length > 150) introText += '...';
                                         }
@@ -879,18 +914,17 @@
                             <div class="data-detail data-container">
                                 ${humanReadableData}
                             </div>
-                            <div class="mt-3 text-xs text-gray-500 italic">
-                                提示：点击 +/- 按钮可展开/折叠内容，不同类型数据以不同颜色显示
-                            </div>
                         </div>
                         
-                        <!-- 相关条目 -->
-                        <div>
-                            <h3 class="baike-section-title">相关条目</h3>
+                        <!-- 相关条目：仅当有内容时渲染 -->
+                        ${relatedHtml ? `
                             <div>
-                                ${getRelatedItemsHtml(item)}
+                                <h3 class="baike-section-title">相关条目</h3>
+                                <div>
+                                    ${relatedHtml}
+                                </div>
                             </div>
-                        </div>
+                        ` : ''}
                         
                         <!-- 操作区域 -->
                         <div class="zhihu-footer">
@@ -899,38 +933,16 @@
                                     <i class="fa fa-arrow-left"></i>
                                     <span>返回</span>
                                 </div>
-                                <div class="zhihu-action">
-                                    <i class="fa fa-share"></i>
-                                    <span>分享</span>
-                                </div>
                             </div>
                         </div>
                     </div>
                 `;
             } catch (err) {
-                console.error('渲染百度百科详情失败:', err);
+                console.error('渲染失败:', err);
                 if (DOM.detailContent) {
                     DOM.detailContent.innerHTML = '<div class="text-red-500 text-center py-8">数据渲染失败</div>';
                 }
             }
-        }
-
-        // 获取相关条目HTML
-        function getRelatedItemsHtml(currentItem) {
-            // 简单实现：从搜索结果中取前5个相关条目
-            const relatedItems = STATE.searchResults
-                .filter(item => item.id !== currentItem.id)
-                .slice(0, 5);
-                
-            if (relatedItems.length === 0) {
-                return '<p class="text-gray-500">暂无相关条目</p>';
-            }
-            
-            return relatedItems.map(item => `
-                <span class="baike-related-item" onclick="switchToZhihuView(${JSON.stringify(item).replace(/"/g, '&quot;')})">
-                    ${item.highlightedName}
-                </span>
-            `).join('');
         }
 
         // 渲染相关推荐
@@ -1088,6 +1100,7 @@
         window.executeSearch = executeSearch;
         window.clearSearch = clearSearch;
         window.toggleNode = toggleNode;
+        window.searchByRelatedItem = searchByRelatedItem;
 
         console.log('JavaScript代码加载完成');
     </script>
