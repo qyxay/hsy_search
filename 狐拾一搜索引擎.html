@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -6,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>狐拾一搜索引擎</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
         tailwind.config = { theme: { extend: {
             colors: {
@@ -19,15 +18,24 @@
                     red: '#F43530',
                     gray: '#8C8C8C',
                     light: '#F7F8FA'
+                },
+                data: {
+                    key: '#1E40AF',
+                    string: '#059669',
+                    number: '#D97706',
+                    boolean: '#7C3AED',
+                    null: '#6B7280'
                 }
             },
             fontFamily: {
-                sans: ['Inter', 'system-ui', 'sans-serif']
+                sans: ['Inter', 'system-ui', 'sans-serif'],
+                mono: ['Consolas', 'Monaco', 'monospace']
             },
             boxShadow: {
                 'result': '0 1px 2px rgba(0,0,0,0.1)',
                 'zhihu-card': '0 1px 4px rgba(0,0,0,0.08)',
-                'zhihu-hover': '0 2px 8px rgba(0,0,0,0.12)'
+                'zhihu-hover': '0 2px 8px rgba(0,0,0,0.12)',
+                'data-block': '0 1px 3px rgba(0,0,0,0.05)'
             }
         }}}
     </script>
@@ -46,31 +54,41 @@
             .zhihu-content { @apply text-gray-800 leading-relaxed; }
             .zhihu-footer { @apply flex items-center justify-between mt-4 pt-3 border-t border-gray-100; }
             .zhihu-action { @apply flex items-center gap-1 text-zhihu-gray hover:text-zhihu-red transition-colors duration-200 cursor-pointer; }
-            .data-detail { @apply bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100; }
-            .data-key { @apply font-bold text-lg text-gray-800 mr-2; }
+            .data-detail { @apply bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100 overflow-x-auto; }
+            .data-key { @apply font-bold text-data-key mr-2; }
             .data-value-same { @apply text-gray-700; }
-            .data-value-newline { @apply text-gray-700 ml-4 block mt-1; }
+            .data-value-newline { @apply ml-4 block mt-1; }
             .source-tag { @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium; }
             .success-message { @apply bg-green-50 text-success border border-green-200; }
             .back-button { @apply flex items-center text-zhihu-blue hover:text-zhihu-blue/80 transition-colors cursor-pointer; }
-            .like-button { @apply flex items-center gap-1 text-zhihu-gray hover:text-zhihu-red transition-colors duration-200 cursor-pointer; }
-            .liked { @apply text-zhihu-red; }
-            .comment-section { @apply mt-6 space-y-4; }
-            .comment-input { @apply w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-primary resize-none; }
-            .comment-item { @apply bg-gray-50 p-4 rounded-lg space-y-2; }
-            .comment-header { @apply flex items-center justify-between; }
-            .comment-author { @apply font-medium text-gray-800; }
-            .comment-time { @apply text-xs text-zhihu-gray; }
-            .comment-content { @apply text-gray-700 leading-relaxed; }
             .sync-status { @apply fixed bottom-4 right-4 px-3 py-1 text-xs rounded-full flex items-center gap-1 z-50; }
             .sync-pending { @apply bg-yellow-100 text-yellow-800; }
             .sync-success { @apply bg-green-100 text-green-800; }
             .sync-error { @apply bg-red-100 text-red-800; }
+            /* 百度百科样式补充 */
+            .baike-info-table { @apply w-full border-collapse mb-6; }
+            .baike-info-th { @apply bg-gray-50 w-1/4 text-left py-2 px-3 border border-gray-200 font-bold text-gray-700; }
+            .baike-info-td { @apply py-2 px-3 border border-gray-200 text-gray-800; }
+            .baike-section-title { @apply text-xl font-bold text-gray-800 mb-4 pb-2 border-b-2 border-blue-100; }
+            .baike-related-item { @apply inline-block bg-blue-50 text-primary px-2 py-1 rounded mr-2 mb-2 hover:bg-blue-100 transition-colors cursor-pointer; }
+            
+            /* 数据展示美化 */
+            .data-container { @apply font-mono text-sm; }
+            .data-object { @apply bg-white rounded-lg p-4 mb-2 shadow-data-block; }
+            .data-array { @apply bg-white rounded-lg p-4 mb-2 shadow-data-block; }
+            .data-expand-btn { @apply w-5 h-5 inline-flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors cursor-pointer mr-1 text-gray-500; }
+            .data-type { @apply text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 mr-2; }
+            .data-string { @apply text-data-string; }
+            .data-number { @apply text-data-number; }
+            .data-boolean { @apply text-data-boolean; }
+            .data-null { @apply text-data-null; }
+            .data-indent { @apply pl-6 border-l-2 border-gray-100 ml-2; }
+            .data-pair { @apply mb-1.5 last:mb-0; }
         }
     </style>
 </head>
 <body id="appBody" class="search-engine-bg font-sans">
-    <!-- 同步状态指示器 -->
+    <!-- 同步状态指示器（已无实际作用，保留防止报错） -->
     <div id="syncStatus" class="sync-status hidden">
         <i class="fa fa-spinner fa-spin"></i>
         <span>同步中...</span>
@@ -138,7 +156,7 @@
         </div>
     </div>
 
-    <!-- 知乎格式详情页面 -->
+    <!-- 百度百科式详情页面 -->
     <div id="zhihuLayout" class="hidden max-w-3xl mx-auto px-4 py-8">
         <!-- 返回按钮 -->
         <div class="flex justify-start items-center mb-6">
@@ -147,34 +165,14 @@
             </div>
         </div>
 
-        <!-- 详情内容 -->
+        <!-- 详情内容（百度百科样式） -->
         <div id="detailContent" class="zhihu-card p-6">
             <!-- 内容将通过JavaScript动态生成 -->
         </div>
 
-        <!-- 评论区 -->
-        <div id="commentSection" class="zhihu-card p-6 mt-6 hidden">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">评论 (<span id="commentCount">0</span>)</h3>
-            
-            <!-- 评论输入框 -->
-            <div class="mb-6">
-                <textarea id="commentInput" placeholder="写下你的评论..." 
-                          class="comment-input" rows="3"></textarea>
-                <button id="submitComment" onclick="submitComment()" 
-                        class="mt-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
-                    发表评论
-                </button>
-            </div>
-
-            <!-- 评论列表 -->
-            <div id="commentsList" class="space-y-4">
-                <!-- 评论将通过JavaScript动态生成 -->
-            </div>
-        </div>
-
         <!-- 相关推荐 -->
         <div id="relatedContent" class="mt-8">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">相关推荐</h3>
+            <h3 class="baike-section-title">相关推荐</h3>
             <div id="relatedList" class="space-y-3">
                 <!-- 相关内容将通过JavaScript动态生成 -->
             </div>
@@ -226,177 +224,7 @@
                         throw new Error(`JSON修复失败：${error.message}`);
                     }
                 }
-            },
-
-            async read(config) {
-                try {
-                    const required = ['username', 'repo', 'token', 'filePath'];
-                    const missing = required.filter(key => !config[key]);
-                    if (missing.length > 0) {
-                        return { success: false, message: `缺少必填参数：${missing.join(', ')}` };
-                    }
-
-                    const { username, repo, token, filePath, branch = 'main' } = config;
-                    const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${filePath}?ref=${branch}`;
-
-                    const response = await fetch(apiUrl, {
-                        headers: {
-                            'Authorization': `token ${token}`,
-                            'Accept': 'application/vnd.github.v3+json'
-                        }
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json().catch(() => null);
-                        if (!data) return { success: false, message: '无法解析服务器响应' };
-
-                        try {
-                            const decodedContent = decodeURIComponent(escape(atob(data.content)));
-                            const validation = this.jsonFormatter.validate(decodedContent);
-                            if (!validation.valid) {
-                                return {
-                                    success: false,
-                                    message: `文件内容不是有效的JSON：${validation.error}`,
-                                    rawContent: decodedContent
-                                };
-                            }
-                            
-                            const jsonContent = JSON.parse(decodedContent);
-                            const formattedContent = this.jsonFormatter.format(jsonContent);
-                            
-                            return {
-                                success: true,
-                                content: jsonContent,
-                                formattedContent: formattedContent,
-                                rawContent: decodedContent,
-                                sha: data.sha,
-                                message: 'JSON文件读取成功'
-                            };
-                        } catch (parseErr) {
-                            return {
-                                success: false,
-                                message: `JSON解析失败：${parseErr.message}`,
-                                rawContent: data.content
-                            };
-                        }
-                    }
-
-                    const errorData = await response.json().catch(() => null);
-                    switch (response.status) {
-                        case 404:
-                            return { success: false, message: '文件不存在', notFound: true };
-                        case 401:
-                            return { success: false, message: '无效的访问令牌' };
-                        case 403:
-                            return { success: false, message: '令牌权限不足' };
-                        case 409:
-                            return { success: false, message: '路径冲突', conflict: true };
-                        default:
-                            return {
-                                success: false,
-                                message: `请求失败：${response.status} ${response.statusText}`,
-                                errorDetails: errorData || {}
-                            };
-                    }
-
-                } catch (networkErr) {
-                    return {
-                        success: false,
-                        message: `网络错误：${networkErr.message || '未知网络问题'}`
-                    };
-                }
-            },
-
-            async write(config) {
-                try {
-                    const required = ['username', 'repo', 'token', 'filePath', 'content', 'commitMessage'];
-                    const missing = required.filter(key => !config[key]);
-                    if (missing.length > 0) {
-                        return { success: false, message: `缺少必填参数：${missing.join(', ')}` };
-                    }
-
-                    let content = config.content;
-                    if (typeof content === 'string') {
-                        const validation = this.jsonFormatter.validate(content);
-                        if (!validation.valid) {
-                            try {
-                                content = this.jsonFormatter.repair(content);
-                            } catch (repairErr) {
-                                return { success: false, message: `JSON格式错误：${repairErr.message}` };
-                            }
-                        }
-                        content = JSON.parse(content);
-                    }
-
-                    if (typeof content !== 'object' || content === null) {
-                        return { success: false, message: 'content必须是有效的JSON对象' };
-                    }
-
-                    const {
-                        username, repo, token, filePath,
-                        commitMessage, branch = 'main', sha = null,
-                        description = ''
-                    } = config;
-
-                    const jsonString = this.jsonFormatter.format(content);
-                    const encodedContent = btoa(unescape(encodeURIComponent(jsonString)));
-
-                    const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${filePath}`;
-                    const response = await fetch(apiUrl, {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': `token ${token}`,
-                            'Accept': 'application/vnd.github.v3+json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            message: description ? `${commitMessage}\n\n${description}` : commitMessage,
-                            content: encodedContent,
-                            branch,
-                            ...(sha && { sha })
-                        })
-                    });
-
-                    const responseData = await response.json().catch(() => null);
-                    if (response.ok) {
-                        return {
-                            success: true,
-                            message: 'JSON文件写入成功',
-                            sha: responseData?.content?.sha || '',
-                            commit: responseData?.commit || {},
-                            content: content,
-                            formattedContent: jsonString
-                        };
-                    }
-
-                    switch (response.status) {
-                        case 401: return { success: false, message: '无效的访问令牌' };
-                        case 403: return { success: false, message: '令牌权限不足' };
-                        case 409: return { success: false, message: '路径冲突', conflict: true };
-                        case 422: return { success: false, message: '更新冲突，请重新获取SHA', conflict: true };
-                        default: return {
-                            success: false,
-                            message: `请求失败：${response.status} ${response.statusText}`,
-                            errorDetails: responseData || {}
-                        };
-                    }
-
-                } catch (networkErr) {
-                    return {
-                        success: false,
-                        message: `网络错误：${networkErr.message || '未知网络问题'}`
-                    };
-                }
             }
-        };
-
-        // 互动数据配置
-        const INTERACTION_CONFIG = {
-            username: "qyxay",
-            repo: "hsy_search",
-            token: "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",
-            filePath: "互动信息.json",
-            branch: "main"
         };
 
         const CONFIG = {
@@ -419,27 +247,19 @@
             ],
             excludeHighlightPaths: [
                 ['神域那些事', '尘夔惊天一战']
-            ],
-            sync: {
-                maxRetries: 3,
-                retryDelay: 1000
-            }
+            ]
         };
 
         const STATE = {
             data: null,
-            interactionData: null,
-            interactionSha: null,
             isSearching: false,
             lastQuery: '',
             searchResults: [],
             currentView: 'search',
             currentItem: null,
             rootTags: new Map(),
-            likedItems: new Set(), // 记录用户已点赞的项目
             loading: false,
-            syncInProgress: false,
-            syncQueue: []
+            expandedNodes: new Set() // 用于跟踪展开的节点
         };
 
         // DOM元素缓存
@@ -467,39 +287,10 @@
             detailContent: document.getElementById('detailContent'),
             relatedContent: document.getElementById('relatedContent'),
             relatedList: document.getElementById('relatedList'),
-            commentSection: document.getElementById('commentSection'),
-            commentInput: document.getElementById('commentInput'),
-            submitComment: document.getElementById('submitComment'),
-            commentsList: document.getElementById('commentsList'),
-            commentCount: document.getElementById('commentCount'),
             syncStatus: document.getElementById('syncStatus')
         };
 
         console.log('DOM元素缓存完成');
-
-        // 同步状态管理
-        function showSyncStatus(type, message, duration = 3000) {
-            if (!DOM.syncStatus) return;
-            
-            DOM.syncStatus.classList.remove('hidden', 'sync-pending', 'sync-success', 'sync-error');
-            
-            switch(type) {
-                case 'pending':
-                    DOM.syncStatus.classList.add('sync-pending');
-                    DOM.syncStatus.innerHTML = '<i class="fa fa-spinner fa-spin"></i><span>' + message + '</span>';
-                    break;
-                case 'success':
-                    DOM.syncStatus.classList.add('sync-success');
-                    DOM.syncStatus.innerHTML = '<i class="fa fa-check"></i><span>' + message + '</span>';
-                    setTimeout(() => DOM.syncStatus.classList.add('hidden'), duration);
-                    break;
-                case 'error':
-                    DOM.syncStatus.classList.add('sync-error');
-                    DOM.syncStatus.innerHTML = '<i class="fa fa-exclamation"></i><span>' + message + '</span>';
-                    setTimeout(() => DOM.syncStatus.classList.add('hidden'), duration);
-                    break;
-            }
-        }
 
         // 工具函数
         function showError(message, duration = 5000) {
@@ -567,6 +358,27 @@
                     if (pathParts[i] !== excludePath[i]) return false;
                 return true;
             });
+        }
+
+        // 生成唯一节点ID
+        function generateNodeId(path) {
+            return path.join('-').replace(/\[|\]/g, '');
+        }
+
+        // 切换节点展开/折叠状态
+        function toggleNode(nodeId) {
+            console.log('toggleNode called with:', nodeId);
+            if (STATE.expandedNodes.has(nodeId)) {
+                STATE.expandedNodes.delete(nodeId);
+            } else {
+                STATE.expandedNodes.add(nodeId);
+            }
+            
+            // 重新渲染当前详情页
+            if (STATE.currentItem) {
+                console.log('Re-rendering with expanded nodes:', Array.from(STATE.expandedNodes));
+                renderZhihuDetail(STATE.currentItem);
+            }
         }
 
         // 初始化第一层标签
@@ -663,420 +475,125 @@
             return true;
         }
 
-        function renderDataAsHumanReadable(data, query, currentPath = []) {
+        // 美化的数据渲染函数
+        function renderDataAsHumanReadable(data, query, currentPath = [], level = 0) {
             try {
-                if (data === null || data === undefined) return '<span class="text-gray-400">null</span>';
+                const nodeId = generateNodeId(currentPath);
+                const isExpanded = STATE.expandedNodes.has(nodeId) || level < 2; // 默认展开前两层
+                console.log('renderDataAsHumanReadable - nodeId:', nodeId, 'isExpanded:', isExpanded);
                 
+                if (data === null || data === undefined) {
+                    return `<span class="data-null">null</span>`;
+                }
+                
+                // 基本类型处理
                 if (typeof data !== 'object') {
-                    const text = String(data);
-                    const highlighted = highlightMatch(text, query, currentPath);
-                    return `<span class="text-gray-700">${highlighted}</span>`;
-                }
-
-                if (Array.isArray(data)) {
-                    if (data.length === 0) return '<span class="text-gray-400">[]</span>';
+                    let valueHtml, typeClass;
                     
-                    let html = '<div class="space-y-2">';
-                    data.forEach((item, index) => {
-                        const newPath = [...currentPath, `[${index}]`];
-                        html += `
-                            <div class="flex items-start">
-                                <span class="text-gray-500 mr-2">[${index}]</span>
-                                <div class="flex-1">${renderDataAsHumanReadable(item, query, newPath)}</div>
-                            </div>
-                        `;
-                    });
-                    html += '</div>';
-                    return html;
-                }
-
-                const keys = Object.keys(data);
-                if (keys.length === 0) return '<span class="text-gray-400">{}</span>';
-                
-                let html = '<div class="space-y-3">';
-                keys.forEach(key => {
-                    const value = data[key];
-                    const newPath = [...currentPath, key];
-                    const highlightedKey = highlightMatch(key, query, newPath);
-                    
-                    if (typeof value === 'string' && value.length <= 15) {
-                        const highlightedValue = highlightMatch(value, query, newPath);
-                        html += `
-                            <div class="flex items-center">
-                                <span class="data-key">${highlightedKey}：</span>
-                                <span class="data-value-same">${highlightedValue}</span>
-                            </div>
-                        `;
+                    if (typeof data === 'string') {
+                        typeClass = 'data-string';
+                        valueHtml = `"${highlightMatch(data, query, currentPath)}"`;
+                    } else if (typeof data === 'number') {
+                        typeClass = 'data-number';
+                        valueHtml = String(data);
+                    } else if (typeof data === 'boolean') {
+                        typeClass = 'data-boolean';
+                        valueHtml = String(data);
                     } else {
-                        html += `
-                            <div>
-                                <span class="data-key">${highlightedKey}：</span>
-                                <div class="data-value-newline">${renderDataAsHumanReadable(value, query, newPath)}</div>
-                            </div>
-                        `;
+                        typeClass = '';
+                        valueHtml = String(data);
                     }
-                });
-                html += '</div>';
-                return html;
+                    
+                    return `<span class="${typeClass}">${valueHtml}</span>`;
+                }
+
+                // 数组处理
+                if (Array.isArray(data)) {
+                    const arrayLength = data.length;
+                    const arrayType = `<span class="data-type">Array[${arrayLength}]</span>`;
+                    const expandBtn = `<div class="data-expand-btn" onclick="toggleNode('${nodeId}')">${isExpanded ? '-' : '+'}</div>`;
+                    
+                    let content = '';
+                    if (isExpanded) {
+                        if (arrayLength === 0) {
+                            content = '<span class="text-gray-400">空数组</span>';
+                        } else {
+                            content = '<div class="data-indent">';
+                            data.forEach((item, index) => {
+                                const newPath = [...currentPath, `[${index}]`];
+                                content += `
+                                    <div class="py-1 border-b border-gray-50 last:border-0">
+                                        <div class="flex items-start">
+                                            <span class="text-gray-500 mr-2">${index}:</span>
+                                            <div class="flex-1">${renderDataAsHumanReadable(item, query, newPath, level + 1)}</div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            content += '</div>';
+                        }
+                    } else {
+                        content = `<span class="text-gray-500">点击展开查看 ${arrayLength} 项内容</span>`;
+                    }
+                    
+                    return `
+                        <div class="data-array">
+                            <div class="flex items-center">
+                                ${expandBtn}
+                                ${arrayType}
+                            </div>
+                            ${content}
+                        </div>
+                    `;
+                }
+
+                // 对象处理
+                const keys = Object.keys(data);
+                const objectType = `<span class="data-type">Object[${keys.length}]</span>`;
+                const expandBtn = `<div class="data-expand-btn" onclick="toggleNode('${nodeId}')">${isExpanded ? '-' : '+'}</div>`;
+                
+                let content = '';
+                if (isExpanded) {
+                    if (keys.length === 0) {
+                        content = '<span class="text-gray-400">空对象</span>';
+                    } else {
+                        content = '<div class="data-indent">';
+                        keys.forEach(key => {
+                            const value = data[key];
+                            const newPath = [...currentPath, key];
+                            const highlightedKey = highlightMatch(key, query, newPath);
+                            
+                            content += `
+                                <div class="data-pair py-1 border-b border-gray-50 last:border-0">
+                                    <div class="flex items-start">
+                                        <span class="data-key mr-2">${highlightedKey}:</span>
+                                        <div class="flex-1">${renderDataAsHumanReadable(value, query, newPath, level + 1)}</div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        content += '</div>';
+                    }
+                } else {
+                    content = `<span class="text-gray-500">点击展开查看 ${keys.length} 个属性</span>`;
+                }
+                
+                return `
+                    <div class="data-object">
+                        <div class="flex items-center">
+                            ${expandBtn}
+                            ${objectType}
+                        </div>
+                        ${content}
+                    </div>
+                `;
             } catch (err) {
                 console.error('渲染数据失败:', err);
                 return '<span class="text-red-500">数据渲染失败</span>';
             }
         }
 
-        // 互动数据管理 - 带重试机制的加载函数
-        async function loadInteractionData(retries = 0) {
-            try {
-                console.log(`加载互动数据 (重试: ${retries})...`);
-                const result = await githubJsonUtils.read(INTERACTION_CONFIG);
-                
-                if (result.success) {
-                    STATE.interactionData = result.content;
-                    STATE.interactionSha = result.sha;
-                    console.log('互动数据加载成功');
-                    
-                    // 恢复已点赞状态
-                    if (STATE.interactionData && STATE.interactionData.categories) {
-                        Object.values(STATE.interactionData.categories).forEach(category => {
-                            Object.entries(category.items).forEach(([path, item]) => {
-                                if (item.likesCount > 0) {
-                                    // 简单处理：假设当前用户是最后一个点赞的人
-                                    // 实际应用中应该有用户系统来跟踪谁点赞了
-                                    STATE.likedItems.add(path);
-                                }
-                            });
-                        });
-                    }
-                    
-                    return true;
-                } else if (result.notFound) {
-                    // 如果文件不存在，创建初始数据结构
-                    console.log('互动数据文件不存在，创建初始结构');
-                    STATE.interactionData = {
-                        categories: {},
-                        lastSync: Date.now(),
-                        schemaVersion: 1
-                    };
-                    return await saveInteractionData('初始化互动数据文件');
-                } else {
-                    // 如果有重试次数，进行重试
-                    if (retries < CONFIG.sync.maxRetries) {
-                        console.log(`加载失败，${CONFIG.sync.retryDelay}ms后重试...`);
-                        await new Promise(resolve => setTimeout(resolve, CONFIG.sync.retryDelay));
-                        return loadInteractionData(retries + 1);
-                    }
-                    
-                    showError(`加载互动数据失败：${result.message}`);
-                    return false;
-                }
-            } catch (error) {
-                console.error('加载互动数据时出错:', error);
-                
-                // 如果有重试次数，进行重试
-                if (retries < CONFIG.sync.maxRetries) {
-                    console.log(`加载失败，${CONFIG.sync.retryDelay}ms后重试...`);
-                    await new Promise(resolve => setTimeout(resolve, CONFIG.sync.retryDelay));
-                    return loadInteractionData(retries + 1);
-                }
-                
-                showError('加载互动功能失败');
-                return false;
-            }
-        }
-
-        // 带重试机制的保存函数
-        async function saveInteractionData(commitMessage = '更新互动数据', retries = 0) {
-            try {
-                if (!STATE.interactionData) return false;
-                
-                // 显示同步状态
-                showSyncStatus('pending', '同步中...');
-                STATE.syncInProgress = true;
-                
-                STATE.interactionData.lastSync = Date.now();
-                
-                const config = {
-                    ...INTERACTION_CONFIG,
-                    content: STATE.interactionData,
-                    commitMessage: commitMessage,
-                    sha: STATE.interactionSha
-                };
-                
-                const result = await githubJsonUtils.write(config);
-                
-                if (result.success) {
-                    STATE.interactionSha = result.sha;
-                    console.log('互动数据保存成功');
-                    showSyncStatus('success', '同步成功');
-                    STATE.syncInProgress = false;
-                    
-                    // 处理同步队列中的下一个任务
-                    processSyncQueue();
-                    
-                    return true;
-                } else if (result.conflict && retries < CONFIG.sync.maxRetries) {
-                    // 冲突，重新获取最新数据后重试
-                    console.log(`数据冲突，${CONFIG.sync.retryDelay}ms后重试...`);
-                    await loadInteractionData();
-                    await new Promise(resolve => setTimeout(resolve, CONFIG.sync.retryDelay));
-                    return saveInteractionData(commitMessage, retries + 1);
-                } else {
-                    showSyncStatus('error', `同步失败: ${result.message}`, 5000);
-                    showError(`保存互动数据失败：${result.message}`);
-                    STATE.syncInProgress = false;
-                    
-                    // 处理同步队列中的下一个任务
-                    processSyncQueue();
-                    
-                    return false;
-                }
-            } catch (error) {
-                console.error('保存互动数据时出错:', error);
-                
-                if (retries < CONFIG.sync.maxRetries) {
-                    console.log(`保存失败，${CONFIG.sync.retryDelay}ms后重试...`);
-                    await new Promise(resolve => setTimeout(resolve, CONFIG.sync.retryDelay));
-                    return saveInteractionData(commitMessage, retries + 1);
-                }
-                
-                showSyncStatus('error', '同步失败', 5000);
-                showError('保存互动数据失败');
-                STATE.syncInProgress = false;
-                
-                // 处理同步队列中的下一个任务
-                processSyncQueue();
-                
-                return false;
-            }
-        }
-
-        // 同步队列处理
-        function queueSyncOperation(operation) {
-            STATE.syncQueue.push(operation);
-            if (!STATE.syncInProgress) {
-                processSyncQueue();
-            }
-        }
-
-        function processSyncQueue() {
-            if (STATE.syncQueue.length === 0) return;
-            
-            const nextOperation = STATE.syncQueue.shift();
-            nextOperation();
-        }
-
-        function getCategoryFromPath(pathParts) {
-            if (pathParts && pathParts.length > 0) {
-                return pathParts[0];
-            }
-            return 'unknown';
-        }
-
-        function getItemInteractionData(item) {
-            if (!STATE.interactionData || !item || !item.pathParts) {
-                return { likesCount: 0, commentsCount: 0, commentsList: [] };
-            }
-            
-            const category = getCategoryFromPath(item.pathParts);
-            const itemPath = item.path;
-            
-            if (!STATE.interactionData.categories[category]) {
-                STATE.interactionData.categories[category] = { items: {} };
-            }
-            
-            if (!STATE.interactionData.categories[category].items[itemPath]) {
-                STATE.interactionData.categories[category].items[itemPath] = {
-                    likesCount: 0,
-                    commentsCount: 0,
-                    commentsList: []
-                };
-            }
-            
-            return STATE.interactionData.categories[category].items[itemPath];
-        }
-
-        async function toggleLike(item) {
-            try {
-                if (!item || !item.pathParts) return;
-                
-                // 先更新本地状态
-                const itemData = getItemInteractionData(item);
-                const itemPath = item.path;
-                const wasLiked = STATE.likedItems.has(itemPath);
-                
-                if (wasLiked) {
-                    // 取消点赞
-                    itemData.likesCount = Math.max(0, itemData.likesCount - 1);
-                    STATE.likedItems.delete(itemPath);
-                } else {
-                    // 点赞
-                    itemData.likesCount += 1;
-                    STATE.likedItems.add(itemPath);
-                }
-                
-                // 更新界面（立即反馈）
-                updateLikeDisplay(item);
-                
-                // 将同步操作加入队列
-                queueSyncOperation(async () => {
-                    const success = await saveInteractionData('更新点赞数据');
-                    if (!success) {
-                        // 同步失败，回滚本地状态
-                        console.log('点赞同步失败，回滚状态');
-                        if (wasLiked) {
-                            itemData.likesCount += 1;
-                            STATE.likedItems.add(itemPath);
-                        } else {
-                            itemData.likesCount = Math.max(0, itemData.likesCount - 1);
-                            STATE.likedItems.delete(itemPath);
-                        }
-                        updateLikeDisplay(item);
-                        showError('点赞同步失败，请重试');
-                    } else {
-                        showSuccess(STATE.likedItems.has(itemPath) ? '点赞成功' : '取消点赞成功');
-                    }
-                });
-                
-            } catch (error) {
-                console.error('点赞操作失败:', error);
-                showError('点赞操作失败');
-            }
-        }
-
-        async function submitComment() {
-            try {
-                if (!STATE.currentItem || !DOM.commentInput) return;
-                
-                const commentText = DOM.commentInput.value.trim();
-                if (!commentText) {
-                    showError('请输入评论内容');
-                    return;
-                }
-                
-                // 先更新本地状态
-                const itemData = getItemInteractionData(STATE.currentItem);
-                
-                const newComment = {
-                    id: Date.now(),
-                    content: commentText,
-                    author: '用户',
-                    time: new Date().toISOString()
-                };
-                
-                itemData.commentsList.push(newComment);
-                itemData.commentsCount = itemData.commentsList.length;
-                
-                // 更新界面（立即反馈）
-                DOM.commentInput.value = '';
-                renderComments(STATE.currentItem);
-                
-                // 将同步操作加入队列
-                queueSyncOperation(async () => {
-                    const success = await saveInteractionData('添加新评论');
-                    if (!success) {
-                        // 同步失败，回滚本地状态
-                        console.log('评论同步失败，回滚状态');
-                        itemData.commentsList.pop();
-                        itemData.commentsCount = itemData.commentsList.length;
-                        renderComments(STATE.currentItem);
-                        showError('评论同步失败，请重试');
-                    } else {
-                        showSuccess('评论发表成功');
-                    }
-                });
-                
-            } catch (error) {
-                console.error('提交评论失败:', error);
-                showError('提交评论失败');
-            }
-        }
-
-        function formatTime(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleString('zh-CN');
-        }
-
-        function renderComments(item) {
-            try {
-                if (!DOM.commentsList || !DOM.commentCount) return;
-                
-                const itemData = getItemInteractionData(item);
-                
-                DOM.commentCount.textContent = itemData.commentsCount;
-                
-                if (itemData.commentsList.length === 0) {
-                    DOM.commentsList.innerHTML = '<div class="text-center text-gray-400 py-4">暂无评论</div>';
-                    return;
-                }
-                
-                // 按时间倒序排列
-                const sortedComments = [...itemData.commentsList].sort((a, b) => 
-                    new Date(b.time) - new Date(a.time)
-                );
-                
-                DOM.commentsList.innerHTML = sortedComments.map(comment => `
-                    <div class="comment-item fade-in">
-                        <div class="comment-header">
-                            <span class="comment-author">${comment.author}</span>
-                            <span class="comment-time">${formatTime(comment.time)}</span>
-                        </div>
-                        <div class="comment-content">${comment.content.replace(/\n/g, '<br>')}</div>
-                    </div>
-                `).join('');
-                
-            } catch (error) {
-                console.error('渲染评论失败:', error);
-            }
-        }
-
-        function updateLikeDisplay(item) {
-            try {
-                const itemData = getItemInteractionData(item);
-                const itemPath = item.path;
-                
-                // 更新搜索结果中的点赞显示
-                const resultItems = document.querySelectorAll('.result-item');
-                resultItems.forEach(resultItem => {
-                    const likeBtn = resultItem.querySelector(`[data-path="${itemPath}"]`);
-                    if (likeBtn) {
-                        const likeCount = likeBtn.querySelector('.like-count');
-                        likeCount.textContent = itemData.likesCount;
-                        
-                        if (STATE.likedItems.has(itemPath)) {
-                            likeBtn.classList.add('liked');
-                            likeBtn.querySelector('i').classList.remove('fa-heart-o');
-                            likeBtn.querySelector('i').classList.add('fa-heart');
-                        } else {
-                            likeBtn.classList.remove('liked');
-                            likeBtn.querySelector('i').classList.remove('fa-heart');
-                            likeBtn.querySelector('i').classList.add('fa-heart-o');
-                        }
-                    }
-                });
-                
-                // 更新详情页面中的点赞显示
-                const detailLikeBtn = document.querySelector('#detailLikeBtn');
-                if (detailLikeBtn) {
-                    const likeCount = detailLikeBtn.querySelector('.like-count');
-                    likeCount.textContent = itemData.likesCount;
-                    
-                    if (STATE.likedItems.has(itemPath)) {
-                        detailLikeBtn.classList.add('liked');
-                        detailLikeBtn.querySelector('i').classList.remove('fa-heart-o');
-                        detailLikeBtn.querySelector('i').classList.add('fa-heart');
-                    } else {
-                        detailLikeBtn.classList.remove('liked');
-                        detailLikeBtn.querySelector('i').classList.remove('fa-heart');
-                        detailLikeBtn.querySelector('i').classList.add('fa-heart-o');
-                    }
-                }
-                
-            } catch (error) {
-                console.error('更新点赞显示失败:', error);
-            }
-        }
-
-        // 数据加载和搜索
+        // 数据加载
         async function loadData() {
             try {
                 const controller = new AbortController();
@@ -1092,12 +609,6 @@
                 STATE.data = await response.json();
 
                 initRootTags(STATE.data);
-                
-                // 并行加载互动数据
-                await Promise.all([
-                    loadInteractionData()
-                ]);
-                
                 showSuccess('数据源加载成功，可以开始搜索');
                 
             } catch (err) {
@@ -1199,9 +710,11 @@
         }
 
         function switchToZhihuView(item, scrollToTop = true) {
-            console.log('切换到知乎视图:', item.name);
+            console.log('切换到百度百科视图:', item.name);
             STATE.currentView = 'zhihu';
             STATE.currentItem = item;
+            // 保留展开状态，不重置清空
+            // STATE.expandedNodes.clear();
             
             document.getElementById('appBody').className = 'zhihu-bg';
             document.getElementById('searchLayout').classList.add('hidden');
@@ -1209,14 +722,6 @@
             
             renderZhihuDetail(item);
             renderRelatedContent(item);
-            
-            // 显示评论区
-            if (DOM.commentSection) {
-                DOM.commentSection.classList.remove('hidden');
-            }
-            
-            // 渲染评论
-            renderComments(item);
             
             if (scrollToTop) {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1242,8 +747,6 @@
                     resultItem.style.animationDelay = `${index * 50}ms`;
                     
                     const rootTag = getRootTag(item.pathParts);
-                    const itemData = getItemInteractionData(item);
-                    const isLiked = STATE.likedItems.has(item.path);
                     
                     resultItem.innerHTML = `
                         <div class="space-y-2">
@@ -1256,16 +759,6 @@
                                 <div class="flex items-center gap-4 text-xs text-gray-400">
                                     <span>${item.matchType === 'name' ? '标题匹配' : '内容匹配'}</span>
                                     <span>匹配度: ${item.matchScore.toFixed(1)}</span>
-                                </div>
-                                <div class="flex items-center gap-4">
-                                    <div class="like-button ${isLiked ? 'liked' : ''}" data-path="${item.path}" onclick="event.stopPropagation(); toggleLike({path: '${item.path}', pathParts: ${JSON.stringify(item.pathParts)}})">
-                                        <i class="fa ${isLiked ? 'fa-heart' : 'fa-heart-o'}"></i>
-                                        <span class="like-count">${itemData.likesCount}</span>
-                                    </div>
-                                    <div class="zhihu-action" onclick="event.stopPropagation(); switchToZhihuView(${JSON.stringify(item).replace(/"/g, '&quot;')})">
-                                        <i class="fa fa-comment-o"></i>
-                                        <span>${itemData.commentsCount}</span>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1281,16 +774,51 @@
             }
         }
 
-        // 渲染知乎格式详情
+        // 渲染百度百科格式详情 - 修改版：仅在数据类型为"表格"时显示基本信息栏
         function renderZhihuDetail(item) {
             try {
-                console.log('渲染知乎详情:', item.name);
+                console.log('渲染百度百科详情:', item.name);
                 if (!DOM.detailContent) return;
                 
                 const humanReadableData = renderDataAsHumanReadable(item.fullData, STATE.lastQuery, item.pathParts);
                 const rootTag = getRootTag(item.pathParts);
-                const itemData = getItemInteractionData(item);
-                const isLiked = STATE.likedItems.has(item.path);
+                
+                // 检查数据是否为表格类型 - 这里我们定义表格类型为包含"表格"字段的对象
+                let infoTableHtml = '';
+                const isTableType = typeof item.fullData === 'object' && 
+                                   item.fullData !== null && 
+                                   !Array.isArray(item.fullData) && 
+                                   (item.fullData.表格 !== undefined || item.fullData.table !== undefined);
+                
+                // 只有数据类型为表格时才显示基本信息栏
+                if (isTableType) {
+                    const entries = Object.entries(item.fullData);
+                    if (entries.length > 0) {
+                        infoTableHtml = '<table class="baike-info-table">';
+                        entries.slice(0, 6).forEach(([key, value]) => { // 只显示前6个属性
+                            const highlightedKey = highlightMatch(key, STATE.lastQuery);
+                            const valueStr = typeof value === 'object' ? JSON.stringify(value) : String(value);
+                            const highlightedValue = highlightMatch(valueStr.length > 50 ? valueStr.substring(0, 50) + '...' : valueStr, STATE.lastQuery);
+                            infoTableHtml += `
+                                <tr>
+                                    <th class="baike-info-th">${highlightedKey}</th>
+                                    <td class="baike-info-td">${highlightedValue}</td>
+                                </tr>
+                            `;
+                        });
+                        if (entries.length > 6) {
+                            infoTableHtml += `
+                                <tr>
+                                    <th class="baike-info-th">更多属性</th>
+                                    <td class="baike-info-td text-gray-500">
+                                        共 ${entries.length} 个属性，详见下方详细内容
+                                    </td>
+                                </tr>
+                            `;
+                        }
+                        infoTableHtml += '</table>';
+                    }
+                }
                 
                 DOM.detailContent.innerHTML = `
                     <div class="space-y-6">
@@ -1313,14 +841,54 @@
                             </div>
                         </div>
                         
-                        <!-- 重点突出的数据详情部分 -->
-                        <div class="data-detail">
-                            <h3 class="text-lg font-semibold mb-4 text-gray-800 flex items-center">
-                                <i class="fa fa-database text-zhihu-blue mr-2"></i>
-                                数据详情
-                            </h3>
-                            <div class="text-sm leading-relaxed">
+                        <!-- 百度百科式基本信息栏 - 仅在数据类型为表格时显示 -->
+                        ${infoTableHtml}
+                        
+                        <!-- 概述部分 -->
+                        <div>
+                            <h3 class="baike-section-title">概述</h3>
+                            <p class="text-gray-700 leading-relaxed">
+                                ${(() => {
+                                    // 尝试从对象中提取"介绍"字段
+                                    let introText = "关于" + item.highlightedName + "的基本介绍，包含核心特征和重要信息。";
+                                    
+                                    if (typeof item.fullData === 'object' && item.fullData !== null) {
+                                        // 检查是否有"介绍"字段
+                                        if (item.fullData.介绍 !== undefined && typeof item.fullData.介绍 === 'string') {
+                                            introText = highlightMatch(item.fullData.介绍, STATE.lastQuery);
+                                        } 
+                                        // 检查是否有"description"字段（英文版本）
+                                        else if (item.fullData.description !== undefined && typeof item.fullData.description === 'string') {
+                                            introText = highlightMatch(item.fullData.description, STATE.lastQuery);
+                                        }
+                                        // 如果是字符串类型的对象值
+                                        else if (typeof item.fullData === 'string') {
+                                            introText = highlightMatch(item.fullData.substring(0, 150), STATE.lastQuery);
+                                            if (item.fullData.length > 150) introText += '...';
+                                        }
+                                    }
+                                    
+                                    return introText;
+                                })()}
+                            </p>
+                        </div>
+                        
+                        <!-- 详细内容部分 -->
+                        <div>
+                            <h3 class="baike-section-title">详细内容</h3>
+                            <div class="data-detail data-container">
                                 ${humanReadableData}
+                            </div>
+                            <div class="mt-3 text-xs text-gray-500 italic">
+                                提示：点击 +/- 按钮可展开/折叠内容，不同类型数据以不同颜色显示
+                            </div>
+                        </div>
+                        
+                        <!-- 相关条目 -->
+                        <div>
+                            <h3 class="baike-section-title">相关条目</h3>
+                            <div>
+                                ${getRelatedItemsHtml(item)}
                             </div>
                         </div>
                         
@@ -1331,10 +899,6 @@
                                     <i class="fa fa-arrow-left"></i>
                                     <span>返回</span>
                                 </div>
-                                <div id="detailLikeBtn" class="like-button ${isLiked ? 'liked' : ''}" onclick="toggleLike(${JSON.stringify(item).replace(/"/g, '&quot;')})">
-                                    <i class="fa ${isLiked ? 'fa-heart' : 'fa-heart-o'}"></i>
-                                    <span class="like-count">${itemData.likesCount}</span>
-                                </div>
                                 <div class="zhihu-action">
                                     <i class="fa fa-share"></i>
                                     <span>分享</span>
@@ -1344,11 +908,29 @@
                     </div>
                 `;
             } catch (err) {
-                console.error('渲染知乎详情失败:', err);
+                console.error('渲染百度百科详情失败:', err);
                 if (DOM.detailContent) {
                     DOM.detailContent.innerHTML = '<div class="text-red-500 text-center py-8">数据渲染失败</div>';
                 }
             }
+        }
+
+        // 获取相关条目HTML
+        function getRelatedItemsHtml(currentItem) {
+            // 简单实现：从搜索结果中取前5个相关条目
+            const relatedItems = STATE.searchResults
+                .filter(item => item.id !== currentItem.id)
+                .slice(0, 5);
+                
+            if (relatedItems.length === 0) {
+                return '<p class="text-gray-500">暂无相关条目</p>';
+            }
+            
+            return relatedItems.map(item => `
+                <span class="baike-related-item" onclick="switchToZhihuView(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                    ${item.highlightedName}
+                </span>
+            `).join('');
         }
 
         // 渲染相关推荐
@@ -1368,21 +950,12 @@
                     relatedItem.className = 'zhihu-card p-4 cursor-pointer hover:bg-gray-50 transition-colors';
                     
                     const rootTag = getRootTag(item.pathParts);
-                    const itemData = getItemInteractionData(item);
                     
                     relatedItem.innerHTML = `
                         <div class="space-y-2">
                             <h4 class="font-medium text-gray-800 line-clamp-2">${rootTag}${item.highlightedName}</h4>
                             <div class="flex items-center justify-between text-xs">
                                 <span class="text-zhihu-gray">${item.level}层 · ${item.matchType === 'name' ? '标题匹配' : '内容匹配'}</span>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-zhihu-gray">
-                                        <i class="fa fa-heart-o text-xs"></i> ${itemData.likesCount}
-                                    </span>
-                                    <span class="text-zhihu-gray">
-                                        <i class="fa fa-comment-o text-xs"></i> ${itemData.commentsCount}
-                                    </span>
-                                </div>
                             </div>
                         </div>
                     `;
@@ -1498,24 +1071,6 @@
                 });
             }
 
-            // 评论输入框回车事件
-            if (DOM.commentInput) {
-                DOM.commentInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-                        submitComment();
-                    }
-                });
-            }
-
-            // 窗口关闭前尝试同步所有数据
-            window.addEventListener('beforeunload', async function(e) {
-                if (STATE.syncQueue.length > 0 || STATE.syncInProgress) {
-                    e.preventDefault();
-                    e.returnValue = '正在同步数据，确定要离开吗？';
-                    return e.returnValue;
-                }
-            });
-
             console.log('事件监听器初始化完成');
         }
 
@@ -1532,8 +1087,7 @@
         window.switchToSearchView = switchToSearchView;
         window.executeSearch = executeSearch;
         window.clearSearch = clearSearch;
-        window.toggleLike = toggleLike;
-        window.submitComment = submitComment;
+        window.toggleNode = toggleNode;
 
         console.log('JavaScript代码加载完成');
     </script>
